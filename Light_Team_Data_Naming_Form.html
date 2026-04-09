@@ -1,0 +1,527 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0f1923;--bg2:#162130;--bg3:#1e2e3d;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e8edf2;--text2:#8fa3b5;--text3:#4a6278;
+  --teal:#00c4a7;--teal-bg:rgba(0,196,167,0.12);
+  --amber:#f5a623;--amber-bg:rgba(245,166,35,0.12);
+  --red:#e85454;--green:#3ecf8e;--green-bg:rgba(62,207,142,0.12);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.12);
+  --coral:#ff7c5c;--coral-bg:rgba(255,124,92,0.12);
+  --blue:#4da6ff;--blue-bg:rgba(77,166,255,0.12);
+  --r:12px;--font:'DM Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+
+/* screens */
+.screen{display:none;min-height:80vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* header bar */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.topbar-back{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 6px 0 0;line-height:1;}
+.topbar-title{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);}
+.topbar-night{font-family:var(--mono);font-size:12px;color:var(--text3);margin-left:auto;}
+
+/* scrollable content */
+.content{flex:1;overflow-y:auto;padding:20px 18px;padding-bottom:100px;}
+
+/* ── TEAM SELECT ── */
+.welcome-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:16px;text-align:center;}
+.night-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:24px;}
+.night-row label{font-size:12px;color:var(--text2);white-space:nowrap;}
+.night-row input{flex:1;background:none;border:none;color:var(--teal);font-family:var(--mono);font-size:14px;outline:none;min-width:0;}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.team-card{padding:20px 14px;border-radius:var(--r);border:1.5px solid transparent;cursor:pointer;transition:all 0.15s;text-align:center;background:var(--bg2);}
+.team-card:active{transform:scale(0.97);}
+.team-card .tc-icon{font-size:28px;margin-bottom:10px;}
+.team-card .tc-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.team-card .tc-sensors{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.team-card.acoustics{border-color:var(--teal);} .team-card.acoustics .tc-name{color:var(--teal);}
+.team-card.imaging{border-color:var(--coral);} .team-card.imaging .tc-name{color:var(--coral);}
+.team-card.alan{border-color:var(--amber);} .team-card.alan .tc-name{color:var(--amber);}
+.team-card.dataqqa{border-color:var(--purple);} .team-card.dataqqa .tc-name{color:var(--purple);}
+
+/* ── CHECKLIST ── */
+.team-banner{padding:12px 18px;border-radius:var(--r);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.team-banner .tb-icon{font-size:22px;}
+.team-banner .tb-name{font-size:14px;font-weight:600;}
+.team-banner .tb-sub{font-size:11px;opacity:0.7;font-family:var(--mono);}
+.tb-acoustics{background:var(--teal-bg);border:1px solid rgba(0,196,167,0.25);}
+.tb-imaging{background:var(--coral-bg);border:1px solid rgba(255,124,92,0.25);}
+.tb-alan{background:var(--amber-bg);border:1px solid rgba(245,166,35,0.25);}
+.tb-dataqqa{background:var(--purple-bg);border:1px solid rgba(167,139,250,0.25);}
+
+.progress-bar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:14px;}
+.pbar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:3px;transition:width 0.3s;}
+.pbar-fill.acoustics{background:var(--teal);}
+.pbar-fill.imaging{background:var(--coral);}
+.pbar-fill.alan{background:var(--amber);}
+.pbar-fill.dataqqa{background:var(--purple);}
+.pbar-pct{font-family:var(--mono);font-size:13px;color:var(--text2);min-width:36px;text-align:right;}
+
+.group-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:16px 0 8px;}
+.check-card{background:var(--bg2);border-radius:var(--r);overflow:hidden;margin-bottom:2px;}
+.check-row{display:flex;align-items:center;gap:0;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;-webkit-user-select:none;user-select:none;}
+.check-row:last-child{border-bottom:none;}
+.check-row:active{background:var(--bg3);}
+.check-row.checked{opacity:0.55;}
+.check-box{width:24px;height:24px;min-width:24px;border-radius:6px;border:1.5px solid var(--border2);margin-right:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-size:14px;}
+.check-row.checked .check-box{border-color:var(--green);background:var(--green-bg);}
+.check-text-wrap{flex:1;min-width:0;}
+.check-main{font-size:14px;line-height:1.4;color:var(--text);}
+.check-row.checked .check-main{color:var(--text3);text-decoration:line-through;}
+.check-hint{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:3px;line-height:1.4;}
+.check-tag{font-size:10px;padding:2px 7px;border-radius:4px;margin-left:8px;font-family:var(--mono);white-space:nowrap;}
+.tag-warn{background:var(--amber-bg);color:var(--amber);}
+.tag-crit{background:rgba(232,84,84,0.15);color:var(--red);}
+
+/* sticky submit */
+.sticky-bottom{position:fixed;bottom:0;left:0;right:0;padding:14px 18px 20px;background:linear-gradient(transparent, var(--bg) 30%);pointer-events:none;}
+.submit-btn{width:100%;padding:16px;border:none;border-radius:var(--r);font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;pointer-events:all;transition:all 0.15s;letter-spacing:0.02em;}
+.submit-btn:active{transform:scale(0.98);}
+.submit-btn:disabled{opacity:0.25;cursor:not-allowed;}
+.submit-btn.acoustics{background:var(--teal);color:#0f1923;}
+.submit-btn.imaging{background:var(--coral);color:#fff;}
+.submit-btn.alan{background:var(--amber);color:#0f1923;}
+.submit-btn.dataqqa{background:var(--purple);color:#0f1923;}
+
+/* ── COMPLETE ── */
+.complete-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
+.complete-icon{font-size:56px;margin-bottom:20px;}
+.complete-title{font-size:22px;font-weight:600;margin-bottom:8px;}
+.complete-sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:28px;}
+.summary-box{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;font-family:var(--mono);font-size:12px;text-align:left;color:var(--text2);line-height:2;margin-bottom:24px;}
+.summary-box .sl{color:var(--text3);}
+.summary-box .sv{color:var(--text);}
+.restart-btn{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:13px 28px;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;font-family:var(--font);}
+
+/* ── MANUAL TAB ── */
+.manual-tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);}
+.mtab{flex:1;padding:11px 6px;font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;font-family:var(--font);}
+.mtab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.manual-view{display:none;}
+.manual-view.active{display:block;}
+.manual-checklist{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;}
+.m-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.m-code{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:5px;background:var(--bg3);color:var(--text2);letter-spacing:0.05em;}
+.m-name{font-size:13px;font-weight:500;}
+.m-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);}
+.m-item:last-child{border-bottom:none;}
+.m-box{width:16px;height:16px;min-width:16px;border:1.5px solid var(--border2);border-radius:3px;margin-top:2px;}
+.m-text{font-size:13px;color:var(--text2);line-height:1.5;flex:1;}
+.m-hint{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.print-btn{width:100%;padding:13px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);margin-bottom:10px;}
+
+input[type=date]{color-scheme:dark;}
+@media print{.topbar,.manual-tabs,.print-btn{display:none!important;}.manual-view{display:block!important;}.screen{display:flex!important;}.check-card,.manual-checklist{break-inside:avoid;}}
+</style>
+
+<div id="s-home" class="screen active">
+  <div class="topbar">
+    <div class="topbar-title">LIGHT — Data Ingest</div>
+    <div class="topbar-night" id="home-date-display"></div>
+  </div>
+  <div class="content">
+    <div class="night-row">
+      <label>Night</label>
+      <input type="date" id="home-date" oninput="updateHomeDate()" />
+    </div>
+    <div class="welcome-label">Select your team</div>
+    <div class="team-grid">
+      <div class="team-card acoustics" onclick="selectTeam('acoustics')">
+        <div class="tc-icon">🎙</div>
+        <div class="tc-name">Acoustics</div>
+        <div class="tc-sensors">SM4 · AudioMoth</div>
+      </div>
+      <div class="team-card imaging" onclick="selectTeam('imaging')">
+        <div class="tc-icon">📷</div>
+        <div class="tc-name">Imaging</div>
+        <div class="tc-sensors">Thermal · AllSky · LLV</div>
+      </div>
+      <div class="team-card alan" onclick="selectTeam('alan')">
+        <div class="tc-icon">💡</div>
+        <div class="tc-name">ALAN Sensors</div>
+        <div class="tc-sensors">SQM · HOBO · SPEC · LUX</div>
+      </div>
+      <div class="team-card dataqqa" onclick="selectTeam('dataqqa')">
+        <div class="tc-icon">🗂</div>
+        <div class="tc-name">Data & QA</div>
+        <div class="tc-sensors">Admin · Manifest · QA</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;">
+      <div class="manual-tabs">
+        <button class="mtab active" onclick="switchManual('acoustics-m',this)">Acoustics</button>
+        <button class="mtab" onclick="switchManual('imaging-m',this)">Imaging</button>
+        <button class="mtab" onclick="switchManual('alan-m',this)">ALAN</button>
+        <button class="mtab" onclick="switchManual('dataqqa-m',this)">Data/QA</button>
+      </div>
+      <div style="padding:16px 0;" id="manual-container"></div>
+      <button class="print-btn" onclick="window.print()">Print manual checklist</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKLIST SCREEN -->
+<div id="s-check" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goHome()">←</button>
+    <div class="topbar-title" id="check-title">Team</div>
+    <div class="topbar-night" id="check-night"></div>
+  </div>
+  <div class="content" id="check-content"></div>
+  <div class="sticky-bottom">
+    <button class="submit-btn" id="submit-btn" disabled onclick="submitNight()">Submit night</button>
+  </div>
+</div>
+
+<!-- COMPLETE SCREEN -->
+<div id="s-complete" class="screen">
+  <div class="topbar">
+    <div class="topbar-title">Submitted</div>
+  </div>
+  <div class="complete-wrap">
+    <div class="complete-icon">✅</div>
+    <div class="complete-title">Night complete</div>
+    <div class="complete-sub">All checklist items confirmed.<br>Notify Aavash that your submission is done.</div>
+    <div class="summary-box" id="complete-summary"></div>
+    <button class="restart-btn" onclick="goHome()">← Back to teams</button>
+  </div>
+</div>
+
+<script>
+const TEAMS = {
+  acoustics: {
+    label:'Acoustics Team', icon:'🎙', color:'acoustics',
+    lead:'Davis Swanson',
+    groups: [
+      { name:'SongMeter 4 (SM4-01)', items:[
+        {t:'SM4 SD card retrieved from field station', h:''},
+        {t:'Raw .wav files copied to 20260412_I_SM4/', h:'Do NOT rename — keep PREFIX_YYYYMMDD_HHMMSS.wav'},
+        {t:'File count: 1–2 .wav files expected per night', h:'Flag shortfall to Aavash immediately'},
+        {t:'Spot-check: opened 1 file, audio plays and is clean', h:''},
+        {t:'SM4 SD card retained until next-day verification', h:'', tag:'crit'},
+      ]},
+      { name:'AudioMoth (AM-01 & AM-02)', items:[
+        {t:'AM-01 raw .WAV files copied to …/AM-01/ subfolder', h:'YYYYMMDD_hhmmss.WAV — never rename'},
+        {t:'AM-02 raw .WAV files copied to …/AM-02/ subfolder', h:'Device ID confirmed via file metadata'},
+        {t:'Spot-check: opened 1 file per unit', h:''},
+        {t:'AudioMoth media retained until next-day verification', h:'', tag:'crit'},
+      ]},
+      { name:'Acoustic Processing', items:[
+        {t:'NFC detection pipeline run on SM4 files (if processing night)', h:'Document software version + parameters'},
+        {t:'Detection output named per SOP 13 and uploaded', h:'e.g. 20260413_I_SM4_SM4-01_0230_nfc-detections.csv'},
+      ]},
+    ]
+  },
+  imaging: {
+    label:'Imaging Team', icon:'📷', color:'imaging',
+    lead:'Maria Flores',
+    groups: [
+      { name:'Thermal Binoculars (THERM-01)', items:[
+        {t:'Thermal .mp4 scan recordings uploaded to THERMAL/ subfolder', h:'3×10-min active scan bouts per observing hour'},
+        {t:'Altitude classifications logged for each track (Low/Med/High AGL)', h:'Low <50m · Med 50–150m · High >150m'},
+        {t:'Scan bout documentation completed by Logging Lead', h:''},
+        {t:'Thermal media cleared / retained per protocol', h:''},
+      ]},
+      { name:'All-sky Camera (CAM-01)', items:[
+        {t:'IMG#.FIT files uploaded to ALLSKY/ subfolder', h:'~30-sec frames — do NOT rename .FIT files'},
+        {t:'Dark frames collected at end of session and uploaded', h:''},
+        {t:'File count plausible for session length', h:'~120 frames/hr expected at 30-sec interval'},
+        {t:'Device internal storage cleared for next night', h:'1 GB limit — offload is critical every night', tag:'crit'},
+      ]},
+      { name:'Low-light Video (CAM-02 Sony ZV-1)', items:[
+        {t:'DS######.mp4 files uploaded to LLV/ subfolder', h:'Do NOT rename raw files'},
+        {t:'Focus lock confirmed — lens tape applied per SOP 6', h:''},
+        {t:'Spot-check: file plays back, image quality acceptable', h:''},
+        {t:'Storage estimate logged (~60–120 GB/3hrs at 4K)', h:'Flag if card is nearing capacity'},
+      ]},
+    ]
+  },
+  alan: {
+    label:'ALAN Sensors', icon:'💡', color:'alan',
+    lead:'Neisha Erickson',
+    groups: [
+      { name:'Sky Quality Meter — SD card (SQM-01)', items:[
+        {t:'SQM SD card retrieved and CSV uploaded to SQM/ subfolder', h:'60-second logging interval'},
+        {t:'Data values plausible (mag/arcsec²)', h:''},
+        {t:'No unexpected gaps or spikes in record', h:''},
+      ]},
+      { name:'HOBO Loggers (HOBO-01 through HOBO-06)', items:[
+        {t:'HOBO-01 CSV exported to HOBO/HOBO-01/ (co-located with SQM)', h:'Cross-check lux vs SQM reading weekly'},
+        {t:'HOBO-02 through HOBO-06 CSVs in their respective subfolders', h:'Export via HOBOware. 5-min interval.'},
+        {t:'All 6 loggers: gap-free lux + temperature confirmed', h:''},
+        {t:'Friday weekly export uploaded to _calibration/HOBO/', h:'Weekly only — skip on non-Friday nights', tag:'warn'},
+      ]},
+      { name:'Spectrometer (SPEC-01)', items:[
+        {t:'8pm session file uploaded to SPEC/ subfolder', h:'Dark frame collected before session'},
+        {t:'9pm session file uploaded', h:''},
+        {t:'10pm session file uploaded', h:''},
+        {t:'File format confirmed with Data/QA (TBD until software accessed)', h:'Update naming ref on first access', tag:'warn'},
+      ]},
+      { name:'Handheld Lux Meter (LUX-01)', items:[
+        {t:'8pm: all 6 readings recorded (horiz + N/W/S/E + W-facing)', h:'W bearing in degrees from I-center required'},
+        {t:'9pm: all 6 readings recorded', h:''},
+        {t:'10pm: all 6 readings recorded', h:''},
+        {t:'Display photographs uploaded for all 3 sessions', h:''},
+        {t:'Completed Lux Field Card uploaded to LUX/ subfolder', h:''},
+      ]},
+      { name:'Weather Station (WX-01)', items:[
+        {t:'Weather data export uploaded to WEATHER/ subfolder', h:'Davis Vantage Pro2 — format TBD', tag:'warn'},
+      ]},
+    ]
+  },
+  dataqqa: {
+    label:'Data & QA', icon:'🗂', color:'dataqqa',
+    lead:'Aavash Ghising',
+    groups: [
+      { name:'Nightly folder setup', items:[
+        {t:'Nightly folder created from template: YYYYMMDD_I/', h:'All sensor subfolders present before any uploads'},
+        {t:'All team submissions received (Acoustics, Imaging, ALAN)', h:''},
+      ]},
+      { name:'Checksum & manifest', items:[
+        {t:'SHA-256 checksum script run on full nightly folder', h:''},
+        {t:'manifest.csv generated and saved to ADMIN/', h:'Fields: filename, path, hash, deviceID, start/stop, GPS, treatment'},
+        {t:'File counts verified against Expected Files Table (all teams)', h:'Flag any missing datasets immediately', tag:'crit'},
+      ]},
+      { name:'Spot-check QA', items:[
+        {t:'SM4: 1 .wav file opened and verified', h:''},
+        {t:'AudioMoth: 1 file per unit opened and verified', h:''},
+        {t:'HOBO: all 6 CSVs opened — timestamps and values plausible', h:''},
+        {t:'SQM: CSV contains full overnight record, no gaps', h:''},
+        {t:'LUX: 3 sessions present, 6 readings each', h:''},
+        {t:'ALLSKY: frame count plausible, dark frames present', h:''},
+        {t:'THERMAL + LLV: files play back, no corruption', h:''},
+      ]},
+      { name:'Admin upload', items:[
+        {t:'Field Log uploaded to ADMIN/', h:''},
+        {t:'Time Sync Sheet uploaded to ADMIN/', h:''},
+        {t:'Treatment-verification photos uploaded to ADMIN/', h:''},
+      ]},
+      { name:'Backup & sign-off', items:[
+        {t:'Secondary backup copied to encrypted external drive (SOP 12)', h:'', tag:'crit'},
+        {t:'Original device media retained until next-day verification', h:''},
+        {t:'Data submission checklist sent to Dr. Cavitt', h:''},
+      ]},
+    ]
+  }
+};
+
+let currentTeam = null;
+let checkState = {};
+
+function updateHomeDate(){
+  const d = document.getElementById('home-date').value;
+  document.getElementById('home-date-display').textContent = d ? d.replace(/-/g,'') + '_I' : '';
+}
+
+function goHome(){
+  show('s-home');
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectTeam(team){
+  const date = document.getElementById('home-date').value;
+  if(!date){alert('Please select the collection night date first.'); return;}
+  currentTeam = team;
+  checkState = {};
+  const T = TEAMS[team];
+  document.getElementById('check-title').textContent = T.label;
+  const ds = date.replace(/-/g,'');
+  document.getElementById('check-night').textContent = ds + '_I';
+
+  const content = document.getElementById('check-content');
+  content.innerHTML = '';
+
+  // banner
+  const banner = document.createElement('div');
+  banner.className = `team-banner tb-${team}`;
+  banner.innerHTML = `<div class="tb-icon">${T.icon}</div><div><div class="tb-name">${T.label}</div><div class="tb-sub">Lead: ${T.lead}</div></div>`;
+  content.appendChild(banner);
+
+  // progress
+  const prog = document.createElement('div');
+  prog.className = 'progress-bar-wrap';
+  prog.innerHTML = `<div class="pbar"><div class="pbar-fill ${team}" id="cl-pbar" style="width:0%"></div></div><div class="pbar-pct" id="cl-pct">0%</div>`;
+  content.appendChild(prog);
+
+  // groups
+  let totalItems = 0;
+  T.groups.forEach((g,gi)=>{
+    const gl = document.createElement('div');
+    gl.className = 'group-label';
+    gl.textContent = g.name;
+    content.appendChild(gl);
+
+    const card = document.createElement('div');
+    card.className = 'check-card';
+    g.items.forEach((item,ii)=>{
+      const key = `${gi}-${ii}`;
+      totalItems++;
+      const row = document.createElement('div');
+      row.className = 'check-row';
+      row.id = `row-${key}`;
+      row.onclick = ()=>toggleCheck(key, gi, ii, totalItems);
+      row.innerHTML = `
+        <div class="check-box" id="box-${key}"></div>
+        <div class="check-text-wrap">
+          <div class="check-main">${item.t}${item.tag ? `<span class="check-tag tag-${item.tag}">${item.tag==='crit'?'critical':'friday only'}</span>`:''}
+          </div>
+          ${item.h?`<div class="check-hint">${item.h}</div>`:''}
+        </div>`;
+      card.appendChild(row);
+    });
+    content.appendChild(card);
+  });
+
+  updateSubmitBtn(team);
+  show('s-check');
+  document.getElementById('submit-btn').className = `submit-btn ${team}`;
+}
+
+function toggleCheck(key){
+  checkState[key] = !checkState[key];
+  const row = document.getElementById('row-' + key);
+  const box = document.getElementById('box-' + key);
+  if(checkState[key]){
+    row.classList.add('checked');
+    box.textContent = '✓';
+  } else {
+    row.classList.remove('checked');
+    box.textContent = '';
+  }
+  updateSubmitBtn(currentTeam);
+}
+
+function updateSubmitBtn(team){
+  const T = TEAMS[team];
+  let total = 0, done = 0;
+  T.groups.forEach((g,gi)=>g.items.forEach((_,ii)=>{total++; if(checkState[`${gi}-${ii}`]) done++;}));
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('cl-pbar').style.width = pct+'%';
+  document.getElementById('cl-pct').textContent = pct+'%';
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = pct < 100;
+  btn.textContent = pct < 100 ? `Submit night (${done}/${total} done)` : 'Submit night ✓';
+}
+
+function submitNight(){
+  const date = document.getElementById('home-date').value;
+  const ds = date.replace(/-/g,'');
+  const T = TEAMS[currentTeam];
+  const time = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('complete-summary').innerHTML =
+    `<span class="sl">Night&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="sv">${ds}_I</span>\n` +
+    `<span class="sl">Team&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="sv">${T.label}</span>\n` +
+    `<span class="sl">Lead&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="sv">${T.lead}</span>\n` +
+    `<span class="sl">Submitted </span><span class="sv">${time} MDT</span>\n` +
+    `<span class="sl">Items&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="sv">All confirmed ✓</span>`;
+  show('s-complete');
+}
+
+// ── MANUAL CHECKLISTS ──
+const MANUAL = {
+  'acoustics-m': [
+    {code:'SM4', name:'SongMeter 4', items:[
+      {t:'SM4 SD card retrieved',h:''},
+      {t:'Raw .wav files copied to SM4/ subfolder',h:'Do NOT rename'},
+      {t:'File count: 1–2 .wav per night',h:''},
+      {t:'Spot-check 1 file — audio clean',h:''},
+      {t:'SD card retained until verification',h:''},
+    ]},
+    {code:'AM', name:'AudioMoth ×2', items:[
+      {t:'AM-01 .WAV files → AM-01/ subfolder',h:'Never rename'},
+      {t:'AM-02 .WAV files → AM-02/ subfolder',h:''},
+      {t:'Spot-check 1 file per unit',h:''},
+      {t:'Media retained until verification',h:''},
+    ]},
+  ],
+  'imaging-m': [
+    {code:'THERMAL', name:'Thermal Binoculars', items:[
+      {t:'.mp4 recordings uploaded to THERMAL/',h:'3×10-min bouts per hr'},
+      {t:'Altitude classifications logged',h:'Low/Med/High AGL'},
+      {t:'Scan documentation complete',h:''},
+    ]},
+    {code:'ALLSKY', name:'All-sky Camera', items:[
+      {t:'IMG#.FIT files uploaded to ALLSKY/',h:'Do NOT rename'},
+      {t:'Dark frames collected + uploaded',h:''},
+      {t:'Device storage cleared',h:'1 GB limit — critical'},
+    ]},
+    {code:'LLV', name:'Sony ZV-1', items:[
+      {t:'DS######.mp4 files uploaded to LLV/',h:'Do NOT rename'},
+      {t:'Focus lock confirmed (lens tape)',h:''},
+      {t:'Spot-check playback',h:''},
+    ]},
+  ],
+  'alan-m': [
+    {code:'SQM', name:'Sky Quality Meter', items:[
+      {t:'SQM CSV uploaded to SQM/',h:'60-sec interval'},
+      {t:'Values plausible, no gaps',h:''},
+    ]},
+    {code:'HOBO', name:'HOBO Loggers ×6', items:[
+      {t:'HOBO-01 CSV → HOBO/HOBO-01/',h:'Co-located with SQM'},
+      {t:'HOBO-02 through -06 in own subfolders',h:''},
+      {t:'All 6: gap-free lux + temp',h:''},
+      {t:'Friday export → _calibration/HOBO/',h:'Fridays only'},
+    ]},
+    {code:'SPEC', name:'Spectrometer', items:[
+      {t:'8pm session uploaded',h:'Dark frame before each'},
+      {t:'9pm session uploaded',h:''},
+      {t:'10pm session uploaded',h:''},
+    ]},
+    {code:'LUX', name:'Handheld Lux', items:[
+      {t:'8pm: 6 readings (horiz+4 cardinal+W)',h:'Record W bearing°'},
+      {t:'9pm: 6 readings',h:''},
+      {t:'10pm: 6 readings',h:''},
+      {t:'Display photos uploaded',h:''},
+      {t:'Field card uploaded to LUX/',h:''},
+    ]},
+  ],
+  'dataqqa-m': [
+    {code:'ADMIN', name:'Nightly Admin', items:[
+      {t:'Nightly folder created from template',h:'All subfolders present'},
+      {t:'All team submissions received',h:''},
+      {t:'SHA-256 manifest generated → ADMIN/',h:''},
+      {t:'File counts vs Expected Files Table',h:'Flag missing data'},
+      {t:'Spot-check 1 file per sensor stream',h:''},
+      {t:'Field Log, Time Sync, photos → ADMIN/',h:''},
+      {t:'Encrypted drive backup (SOP 12)',h:'Critical'},
+      {t:'Media retained until next-day verify',h:''},
+    ]},
+  ],
+};
+
+function buildManual(key){
+  const groups = MANUAL[key];
+  const container = document.getElementById('manual-container');
+  container.innerHTML = '';
+  groups.forEach(g=>{
+    const block = document.createElement('div');
+    block.className = 'manual-checklist';
+    block.innerHTML = `<div class="m-header"><span class="m-code">${g.code}</span><span class="m-name">${g.name}</span></div>` +
+      g.items.map(i=>`<div class="m-item"><div class="m-box"></div><div class="m-text">${i.t}${i.h?`<div class="m-hint">${i.h}</div>`:''}</div></div>`).join('');
+    container.appendChild(block);
+  });
+}
+
+function switchManual(key, btn){
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildManual(key);
+}
+
+// init
+document.getElementById('home-date').value = new Date().toISOString().slice(0,10);
+updateHomeDate();
+buildManual('acoustics-m');
+</script>
