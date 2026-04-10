@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIGHT Team Documents</title>
+<style>
+:root {
+  --bg: #f6f8fb;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --muted: #5f6b7a;
+  --navy: #0d2137;
+  --border: #d9e0ea;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main {
+  max-width: 780px;
+  margin: 48px auto;
+  padding: 0 20px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  color: var(--navy);
+}
+
+p.lead {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+
+.links {
+  display: grid;
+  gap: 14px;
+}
+
+a.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+a.card:hover {
+  border-color: #b8c5d8;
+}
+
+.title {
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.desc {
+  color: var(--muted);
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>LIGHT Team Documents</h1>
+  <p class="lead">Quick links to project HTML documents.</p>
+
+  <div class="links">
+    <a class="card" href="./Light_Team_Data_Naming_Form.html">
+      <div class="title">Light Team Data Naming Form</div>
+      <div class="desc">Submission form and checklist page.</div>
+    </a>
+
+    <a class="card" href="./Light_Team_ALAN_Naming_Reference.html">
+      <div class="title">LIGHT Team ALAN Naming Reference</div>
+      <div class="desc">SOP 13 naming convention reference.</div>
+    </a>
+  </div>
+</main>
+</body>
+</html>
