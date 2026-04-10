@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SOP 13 quick reference for LIGHT Team derivative file naming, device IDs, and folder structure for ALAN W study baseline year 2026.">
+<meta name="author" content="LIGHT Team, Weber State University">
+<meta name="document-version" content="1.1">
+<title>LIGHT Team File Naming Reference &#128038; SOP 13 </title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "LIGHT Team File Naming Reference (SOP 13)",
+  "author": {
+    "@type": "Organization",
+    "name": "LIGHT Team, Weber State University"
+  },
+  "datePublished": "2026-04",
+  "version": "1.1",
+  "description": "Naming standards and examples for derivative files collected in the ALAN W study."
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --navy: #0d2137;
+  --teal: #00796b;
+  --teal-light: #e0f2f1;
+  --teal-mid: #4db6ac;
+  --amber: #f57f17;
+  --amber-light: #fff8e1;
+  --red: #b71c1c;
+  --red-light: #ffebee;
+  --gray: #f5f5f5;
+  --gray2: #eeeeee;
+  --gray3: #e0e0e0;
+  --text: #1a1a1a;
+  --text2: #555;
+  --text3: #666;
+  --border: #d0d0d0;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 28px;
+}
+
+.pending-banner {
+  background: var(--amber-light);
+  border: 1px solid #ffe082;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--amber);
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.print-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  gap: 8px;
+}
+.print-btn {
+  padding: 8px 18px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font);
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+.print-btn:hover { background: #1a3a5c; }
+.print-btn:focus-visible {
+  outline: 3px solid #80cbc4;
+  outline-offset: 2px;
+}
+
+.doc-header {
+  border-bottom: 3px solid var(--navy);
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+}
+.doc-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+  margin-bottom: 3px;
+}
+.doc-subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+.doc-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.doc-meta span { display: flex; align-items: center; gap: 4px; }
+
+.section { margin-bottom: 24px; }
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+  border-bottom: 1.5px solid var(--teal-light);
+  padding-bottom: 5px;
+  margin-bottom: 12px;
+}
+
+.token-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.token-cell {
+  padding: 8px 10px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.token-cell:last-child { border-right: none; }
+.token-cell.header {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  padding: 7px 6px;
+}
+.token-cell.body {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.45;
+  background: var(--gray);
+}
+.tok-date { background: #0d47a1; }
+.tok-site { background: #00695c; }
+.tok-sensor { background: #e65100; }
+.tok-device { background: #4a148c; }
+.tok-time { background: #37474f; }
+.tok-ext { background: #424242; }
+
+.alert-box {
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-left: 4px solid;
+}
+.alert-red { background: var(--red-light); border-color: var(--red); }
+.alert-amber { background: var(--amber-light); border-color: var(--amber); }
+.alert-title { font-weight: 600; font-size: 12px; margin-bottom: 4px; }
+.alert-red .alert-title { color: var(--red); }
+.alert-amber .alert-title { color: var(--amber); }
+.alert-body { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.mono-inline { font-family: var(--mono); font-size: 11px; color: var(--text); }
+
+table.ref {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.ref caption {
+  text-align: left;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text2);
+}
+table.ref th {
+  background: var(--navy);
+  color: #fff;
+  padding: 7px 10px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+table.ref td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--gray3);
+  vertical-align: top;
+}
+table.ref tr:nth-child(even) td { background: var(--gray); }
+table.ref tr:last-child td { border-bottom: none; }
+.mono-cell { font-family: var(--mono); font-size: 11px; color: var(--teal); }
+.code-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--teal-light);
+  color: var(--teal);
+}
+
+.folder-box {
+  background: var(--gray);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 2;
+  color: var(--text2);
+}
+.folder-box .dir { color: #0d47a1; font-weight: 500; }
+.folder-box .note { color: var(--teal); }
+.folder-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.6;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.mini-section { margin-bottom: 0; }
+.mini-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.footer {
+  margin-top: 28px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media print {
+  @page { size: letter; margin: 0.65in 0.85in; }
+  body { padding: 0 0.06in; max-width: 100%; font-size: 11px; }
+  .print-bar { display: none; }
+  .token-cell.header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  table.ref th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  table.ref tr:nth-child(even) td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .alert-red { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .alert-amber { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .folder-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .code-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .section { break-inside: avoid; }
+}
+
+@media (max-width: 600px) {
+  .token-row { grid-template-columns: repeat(3, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .doc-meta { flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <button id="print-sheet" type="button" class="print-btn">Print this sheet</button>
+</div>
+
+<div class="pending-banner">Awaiting SOP confirmation: AM and WEATHER sensor codes, plus DeviceID prefix format. Remove this banner once SOP confirmation is complete.</div>
+
+<header class="doc-header">
+  <h1 class="doc-title">LIGHT Team &#128038; File Naming Reference</h1>
+  <p class="doc-subtitle">SOP 13 Quick Reference &nbsp;·&nbsp; ALAN &#8220;W&#8221; Study &nbsp;·&nbsp; Impact Site &nbsp;·&nbsp; Baseline Year 2026</p>
+  <div class="doc-meta">
+    <span>Weber State University</span>
+    <span>Dr. John F. Cavitt</span>
+    <span>Posted: <time datetime="2026-04">April 2026</time></span>
+  </div>
+</header>
+
+<main>
+<section class="section" aria-labelledby="section-1-title">
+  <h2 id="section-1-title" class="section-title">1. Standard naming convention: derivative files only</h2>
+  <div class="token-row">
+    <div class="token-cell header tok-date">YYYYMMDD</div>
+    <div class="token-cell header tok-site">Site</div>
+    <div class="token-cell header tok-sensor">SensorType</div>
+    <div class="token-cell header tok-device">DeviceID</div>
+    <div class="token-cell header tok-time">StartTimeUTC</div>
+    <div class="token-cell header tok-ext">.ext</div>
+  </div>
+  <div class="token-row">
+    <div class="token-cell body">Date in UTC<br><span class="mono-inline">20260413</span></div>
+    <div class="token-cell body"><span class="mono-inline">I</span> = Impact<br><span class="mono-inline">C</span> = Control<br><em>2026: I only</em></div>
+    <div class="token-cell body">Standard code<br>(see table below)</div>
+    <div class="token-cell body">Specific unit (no sensor prefix)<br><span class="mono-inline">03</span><br><span class="mono-inline">01</span></div>
+    <div class="token-cell body">HHMM in UTC<br>8pm MDT = <span class="mono-inline">0200</span><br>9pm = <span class="mono-inline">0300</span><br>10pm = <span class="mono-inline">0400</span></div>
+    <div class="token-cell body">Lowercase<br><span class="mono-inline">.csv .wav</span><br><span class="mono-inline">.fit .mp4</span></div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="section-2-note">
+  <h2 id="section-2-note" class="sr-only">Filename handling notes</h2>
+  <div class="alert-box alert-amber">
+    <div class="alert-title">Time zone rule: all derivative filenames use UTC</div>
+    <div class="alert-body">MDT = UTC &minus;6 hours. Evening sessions roll to the <strong>next calendar day</strong> in UTC.<br>
+    Data collected 8 pm April 12 &rarr; filename date is <span class="mono-inline">20260413</span>, not 20260412.</div>
+  </div>
+  <div class="alert-box alert-red">
+    <div class="alert-title"><strong>Critical:</strong> raw files are NEVER renamed at ingest</div>
+    <div class="alert-body">Device-generated files must be ingested exactly as produced. This convention applies to <strong>derivative and processed outputs only</strong> (detection results, summaries, exports). Renaming raw files breaks SHA-256 checksum verification.<br>
+    <span class="mono-inline">Keep as-is: &nbsp;SM4_20260412_023012.wav &nbsp;|&nbsp; 20260412_023012.WAV &nbsp;|&nbsp; IMG1.FIT &nbsp;|&nbsp; DS000001.mp4</span></div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="section-2-title">
+  <h2 id="section-2-title" class="section-title">2. Examples by sensor type</h2>
+  <table class="ref">
+    <caption class="sr-only">Sensor code mapping with derivative filename examples</caption>
+    <thead>
+      <tr><th scope="col" style="width:28%">Sensor code</th><th scope="col">Derivative file name example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="code-pill">SM4</span> &nbsp;SongMeter 4</td><td class="mono-cell">20260413_I_SM4_01_0230_nfc-detections.csv</td></tr>
+      <tr><td><span class="code-pill">AM</span> &nbsp;AudioMoth</td><td class="mono-cell">20260413_I_AM_N_0200.wav</td></tr>
+      <tr><td><span class="code-pill">SQM</span> &nbsp;Sky Quality Meter</td><td class="mono-cell">20260413_I_SQM_01-SD_0200.csv</td></tr>
+      <tr><td><span class="code-pill">HOBO</span> &nbsp;Lux/Temp Logger</td><td class="mono-cell">20260413_I_HOBO_03_0200.csv</td></tr>
+      <tr><td><span class="code-pill">SPEC</span> &nbsp;Spectrometer</td><td class="mono-cell">20260413_I_SPEC_01_0200_session1.csv</td></tr>
+      <tr><td><span class="code-pill">THERMAL</span> &nbsp;Thermal Binoculars</td><td class="mono-cell">20260413_I_THERMAL_01_0200.mp4</td></tr>
+      <tr><td><span class="code-pill">LUX</span> &nbsp;Handheld Lux Meter</td><td class="mono-cell">20260413_I_LUX_01_0200.csv</td></tr>
+      <tr><td><span class="code-pill">ALLSKY</span> &nbsp;All-sky Camera</td><td class="mono-cell">20260413_I_ALLSKY_01_0200.fit</td></tr>
+      <tr><td><span class="code-pill">LLV</span> &nbsp;Sony ZV-1</td><td class="mono-cell">20260413_I_LLV_02_0200.mp4</td></tr>
+      <tr><td><span class="code-pill">WEATHER</span> &nbsp;Davis Vantage Pro2</td><td class="mono-cell">20260413_I_WEATHER_01_0200.csv</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="two-col section" aria-label="Device and folder references">
+  <section class="mini-section" aria-labelledby="section-3-title">
+    <h2 id="section-3-title" class="section-title">3. Device ID reference</h2>
+    <table class="ref">
+      <caption class="sr-only">Sensor codes with valid device IDs</caption>
+      <thead><tr><th scope="col">Code</th><th scope="col">Device IDs</th></tr></thead>
+      <tbody>
+        <tr><td><span class="code-pill">SM4</span></td><td class="mono-cell">01</td></tr>
+        <tr><td><span class="code-pill">AM</span></td><td class="mono-cell">N, S</td></tr>
+        <tr><td><span class="code-pill">SQM</span></td><td class="mono-cell">01-SD, 02-ETH</td></tr>
+        <tr><td><span class="code-pill">HOBO</span></td><td class="mono-cell">01 — 06</td></tr>
+        <tr><td><span class="code-pill">SPEC</span></td><td class="mono-cell">01</td></tr>
+        <tr><td><span class="code-pill">THERMAL</span></td><td class="mono-cell">01</td></tr>
+        <tr><td><span class="code-pill">LUX</span></td><td class="mono-cell">01</td></tr>
+        <tr><td><span class="code-pill">ALLSKY</span></td><td class="mono-cell">01</td></tr>
+        <tr><td><span class="code-pill">LLV</span></td><td class="mono-cell">02</td></tr>
+        <tr><td><span class="code-pill">WEATHER</span></td><td class="mono-cell">01</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="mini-section" aria-labelledby="section-4-title">
+    <h2 id="section-4-title" class="section-title">4. Google Drive folder structure</h2>
+    <div class="folder-box">
+      <span class="dir">LIGHT_ALAN-W_2026/</span><br>
+      &nbsp;&nbsp;_admin/ &nbsp;_calibration/ &nbsp;_scripts/<br>
+      &nbsp;&nbsp;<span class="dir">YYYYMMDD_I/</span> <span class="note">← one per night</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SM4/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_AM/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N/ &nbsp;S/ <span class="note">← by folder</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SQM/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_HOBO/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;01/ … 06/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SPEC/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_THERMAL/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_LUX/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_ALLSKY/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_LLV/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_WEATHER/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_ADMIN/ <span class="note">← manifest here</span>
+    </div>
+    <p class="folder-note">
+      AudioMoth files (<span class="mono-inline">YYYYMMDD_hhmmss.WAV</span>) cannot be renamed; device attribution is by subfolder only. <br> HOBO exports weekly on Fridays to <span class="mono-inline">_calibration/HOBO/</span>.
+    </p>
+  </section>
+</section>
+
+</main>
+
+<footer class="footer">
+  <span>Version 1.1 &nbsp;·&nbsp; April 2026</span>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const printButton = document.getElementById('print-sheet');
+  if (printButton) {
+    printButton.addEventListener('click', () => window.print());
+  }
+});
+</script>
+
+</body>
+</html>
