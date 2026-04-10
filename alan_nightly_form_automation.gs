@@ -27,7 +27,7 @@
 const CONFIG = {
   // ⚠ REQUIRED: Replace 'YourEmailHere' with your actual email before running buildNightlyFormAndSheet().
   // All admin alerts, submission summaries, and reminder emails go to this address.
-  // During testing use your own email. Switch to Aavash's email before going live.
+  // During testing use your own email. During production set to a data admin.
   ALERT_EMAIL: 'YourEmailHere',
   // Demo safety switch: when true, outgoing emails are suppressed and logged.
   // Set to false before production go-live.
@@ -43,9 +43,14 @@ const CONFIG = {
   COMPLETE_ALERT_PREFIX: 'COMPLETE_ALERT_SENT_',
   OUTSTANDING_ALERT_PREFIX: 'OUTSTANDING_ALERT_SENT_',
   TEAM_VALUES: ['Acoustics Team', 'Imaging Team', 'ALAN Sensors Team', 'Data & QA'],
+  TEAM_CONFIG: {
+    'Acoustics Team': { col: 2, issueCol: 7, summaryIdx: 1 },
+    'Imaging Team': { col: 3, issueCol: 8, summaryIdx: 2 },
+    'ALAN Sensors Team': { col: 4, issueCol: 9, summaryIdx: 3 },
+    'Data & QA': { col: 5, issueCol: 10, summaryIdx: 4 }
+  },
   FIELD_NIGHT_DATE: 'Collection night date',
   FIELD_OVERRIDE: 'Override: complete HOBO weekly export tonight (non-Friday)',
-  FIELD_FRIDAY_ROUTING: 'Is tonight a Friday? [Routing helper]',
   FIELD_HOBO_WEEKLY: '[FRIDAY EXPORT] Weekly HOBO export uploaded to _calibration/HOBO/',
   ISSUE_NONE_TEXT: 'No issues - all items completed as normal'
 };
@@ -79,8 +84,7 @@ function buildNightlyFormAndSheet() {
     .setTitle(CONFIG.FIELD_NIGHT_DATE)
     .setHelpText(
       'Use the local Utah date (MDT) for the collection night. ' +
-        'Example: data collected tonight April 12 → enter April 12. ' +
-        'The Friday routing question below depends on this date — double-check before continuing.'
+        'Example: data collected tonight April 12 → enter April 12.'
     )
     .setRequired(true);
   form
@@ -91,16 +95,6 @@ function buildNightlyFormAndSheet() {
       'Check this only if completing the Friday export on a different night. Leave unchecked on all normal nights.'
     )
     .setRequired(false);
-  form
-    .addMultipleChoiceItem()
-    .setTitle(CONFIG.FIELD_FRIDAY_ROUTING)
-    .setChoiceValues(['Yes', 'No'])
-    .setHelpText(
-      'Check the date you entered above. If it is a Friday, select Yes — the HOBO weekly ' +
-        'export section will appear and is required. If any other day, select No. ' +
-        'The wrong answer will cause the HOBO export check to be skipped or incorrectly required.'
-    )
-    .setRequired(true);
   const rosterNames = getRosterNames_(spreadsheet);
   if (rosterNames.length > 0) {
     form
@@ -113,7 +107,7 @@ function buildNightlyFormAndSheet() {
       .addTextItem()
       .setTitle('Submitter name')
       .setHelpText(
-        'Roster sheet is empty — type your full name. Ask Aavash to populate the Roster sheet before first collection night.'
+        'Roster sheet is empty — type your full name.'
       )
       .setRequired(true);
   }
@@ -136,7 +130,7 @@ function buildNightlyFormAndSheet() {
   // the Randomization Calendar, and the treatment-verification photos
   // uploaded to YYYYMMDD_I_ADMIN/. Collecting it here would create a
   // potential conflict with those sources if values ever disagreed.
-  // Do not add it back without discussing with Aavash and Dr. Cavitt.
+  // Do not add it back without discussing with Data team or Dr. Cavitt.
 
   // Team sections (branch targets).
   const acousticsSection = form.addPageBreakItem().setTitle('Section 2A - Acoustics Team');
@@ -146,9 +140,7 @@ function buildNightlyFormAndSheet() {
   addImagingSectionItems_(form);
 
   const alanSection = form.addPageBreakItem().setTitle('Section 2C - ALAN Sensors Team');
-  const hoboRoutingItem = addAlanSensorsSectionItems_(form);
-  const hoboFridaySection = form.addPageBreakItem().setTitle('Section 2C.1 - HOBO Weekly Export Check');
-  addHoboFridaySectionItems_(form);
+  addAlanSensorsSectionItems_(form);
 
   const dataQaSection = form.addPageBreakItem().setTitle('Section 2D - Data & QA');
   addDataQaSectionItems_(form);
@@ -160,17 +152,11 @@ function buildNightlyFormAndSheet() {
     .setChoiceValues(['Confirmed'])
     .setRequired(true);
 
-  hoboRoutingItem.setChoices([
-    hoboRoutingItem.createChoice('Yes', hoboFridaySection),
-    hoboRoutingItem.createChoice('No', finalSection)
-  ]);
-
   // Route each team section to final confirmation.
   acousticsSection.setGoToPage(finalSection);
   imagingSection.setGoToPage(finalSection);
   // Defensive fallback: if ALAN section routing item is bypassed for any reason, go to Final.
   alanSection.setGoToPage(finalSection);
-  hoboFridaySection.setGoToPage(finalSection);
   dataQaSection.setGoToPage(finalSection);
 
   // Branch by team selection.
@@ -267,11 +253,9 @@ function sendOutstandingReminders() {
   const row = data.find((r, i) => i > 0 && toDateKey_(r[0]) === todayKey);
   if (!row) return; // No submissions yet today; treat as non-collection night.
 
-  const missingTeams = [];
-  if (row[1] !== 'Y') missingTeams.push('Acoustics Team');
-  if (row[2] !== 'Y') missingTeams.push('Imaging Team');
-  if (row[3] !== 'Y') missingTeams.push('ALAN Sensors Team');
-  if (row[4] !== 'Y') missingTeams.push('Data & QA');
+  const missingTeams = Object.entries(CONFIG.TEAM_CONFIG)
+    .filter(([, cfg]) => row[cfg.summaryIdx] !== 'Y')
+    .map(([name]) => name);
   if (!missingTeams.length) return;
 
   const lockKey = CONFIG.OUTSTANDING_ALERT_PREFIX + todayKey;
@@ -459,20 +443,10 @@ function resetTeamSubmission_(nightDateKey, teamName) {
   const targetKey = toDateKey_(nightDateKey);
   if (!targetKey) throw new Error('Provide nightDateKey in YYYY-MM-DD format.');
 
-  const teamCol = {
-    'Acoustics Team': 2,
-    'Imaging Team': 3,
-    'ALAN Sensors Team': 4,
-    'Data & QA': 5
-  }[teamName];
-  if (!teamCol) throw new Error('teamName must be one of: Acoustics Team, Imaging Team, ALAN Sensors Team, Data & QA.');
-
-  const issueCol = {
-    'Acoustics Team': 7,
-    'Imaging Team': 8,
-    'ALAN Sensors Team': 9,
-    'Data & QA': 10
-  }[teamName];
+  const teamCfg = CONFIG.TEAM_CONFIG[teamName];
+  if (!teamCfg) throw new Error('Unknown team: ' + teamName);
+  const teamCol = teamCfg.col;
+  const issueCol = teamCfg.issueCol;
 
   const ss = getLinkedSpreadsheet_();
   const summary = getOrCreateSheet_(ss, 'Nightly_Summary');
@@ -492,7 +466,7 @@ function resetTeamSubmission_(nightDateKey, teamName) {
   if (issueCol) summary.getRange(rowIndex, issueCol).setValue('');
 
   const row = summary.getRange(rowIndex, 1, 1, 6).getValues()[0];
-  const allComplete = row[1] === 'Y' && row[2] === 'Y' && row[3] === 'Y' && row[4] === 'Y' ? 'Y' : 'N';
+  const allComplete = Object.values(CONFIG.TEAM_CONFIG).every((cfg) => row[cfg.summaryIdx] === 'Y') ? 'Y' : 'N';
   summary.getRange(rowIndex, 6).setValue(allComplete);
   summary.getRange(rowIndex, 11).setValue(new Date());
 
@@ -555,6 +529,12 @@ function addAlanSensorsSectionItems_(form) {
   addChecklistItem_(form, 'All 6 loggers: gap-free lux and temperature records confirmed', true);
   addChecklistItem_(
     form,
+    CONFIG.FIELD_HOBO_WEEKLY,
+    false,
+    'Complete only on Friday nights or when override is enabled. Leave unchecked on all other nights.'
+  );
+  addChecklistItem_(
+    form,
     '[PENDING ALAN SENSORS TEAM CONFIRMATION] Logging interval verified: 60s (work plan) or 5min (inventory)',
     false,
     'Procedure not finalized; pending ALAN Sensors team confirmation.'
@@ -601,14 +581,6 @@ function addAlanSensorsSectionItems_(form) {
   );
 
   addTeamIssueFields_(form, 'ALAN Sensors Team');
-  const hoboRouting = form
-    .addMultipleChoiceItem()
-    .setTitle('Show HOBO weekly export section now?')
-    .setHelpText(
-      'Select Yes when Section 1 indicates Friday, or when override is enabled for a non-Friday weekly export.'
-    )
-    .setRequired(true);
-  return hoboRouting;
 }
 
 function addDataQaSectionItems_(form) {
@@ -673,16 +645,6 @@ function addDataQaSectionItems_(form) {
   addTeamIssueFields_(form, 'Data & QA');
 }
 
-function addHoboFridaySectionItems_(form) {
-  form.addSectionHeaderItem().setTitle('HOBO Weekly Export Confirmation');
-  addChecklistItem_(
-    form,
-    CONFIG.FIELD_HOBO_WEEKLY,
-    true,
-    'Required for Friday collections, or when override is used on non-Friday nights.'
-  );
-}
-
 function addChecklistItem_(form, title, required, helpText) {
   const item = form.addCheckboxItem().setTitle(title).setChoiceValues(['Complete']).setRequired(required);
   if (helpText) item.setHelpText(helpText);
@@ -733,7 +695,7 @@ function initializeTrackingSheets_(spreadsheet) {
     ]);
   }
 
-  // Roster sheet — Aavash populates this with team member names before first collection night.
+  // Roster sheet — to work we will need to populate with all the team members names.
   const roster = getOrCreateSheet_(spreadsheet, 'Roster');
   if (roster.getLastRow() === 0) {
     roster.appendRow(['name', 'team', 'email']);
@@ -807,27 +769,16 @@ function updateNightlySummary_(spreadsheet, nightDate, team, hasIssues, response
       summaryRowIndex = summary.getLastRow();
     }
 
-    const colByTeam = {
-      'Acoustics Team': 2,
-      'Imaging Team': 3,
-      'ALAN Sensors Team': 4,
-      'Data & QA': 5
-    };
-    const issueColByTeam = {
-      'Acoustics Team': 7,
-      'Imaging Team': 8,
-      'ALAN Sensors Team': 9,
-      'Data & QA': 10
-    };
-    const col = colByTeam[team];
-    const issueCol = issueColByTeam[team];
-    if (!col) return { isDuplicate: false, dateKey, team };
+    const teamCfg = CONFIG.TEAM_CONFIG[team];
+    if (!teamCfg) return { isDuplicate: false, dateKey, team };
+    const col = teamCfg.col;
+    const issueCol = teamCfg.issueCol;
 
     const duplicate = summary.getRange(summaryRowIndex, col).getValue() === 'Y';
     summary.getRange(summaryRowIndex, col).setValue('Y');
     if (issueCol) summary.getRange(summaryRowIndex, issueCol).setValue(hasIssues ? 'N' : 'Y');
     const row = summary.getRange(summaryRowIndex, 1, 1, 6).getValues()[0];
-    const allComplete = row[1] === 'Y' && row[2] === 'Y' && row[3] === 'Y' && row[4] === 'Y' ? 'Y' : 'N';
+    const allComplete = Object.values(CONFIG.TEAM_CONFIG).every((cfg) => row[cfg.summaryIdx] === 'Y') ? 'Y' : 'N';
     summary.getRange(summaryRowIndex, 6).setValue(allComplete);
     summary.getRange(summaryRowIndex, 11).setValue(new Date());
 
@@ -857,7 +808,10 @@ function maybeSendNightCompleteAlert_(spreadsheet, nightDate) {
     const values = summary.getDataRange().getValues();
     const dateKey = toDateKey_(nightDate);
     const row = values.find((r, i) => i > 0 && toDateKey_(r[0]) === dateKey);
-    if (!row || row[5] !== 'Y') return;
+    if (!row) return;
+
+    const allComplete = Object.values(CONFIG.TEAM_CONFIG).every((cfg) => row[cfg.summaryIdx] === 'Y') ? 'Y' : 'N';
+    if (allComplete !== 'Y') return;
 
     const propKey = CONFIG.COMPLETE_ALERT_PREFIX + dateKey;
     const props = PropertiesService.getScriptProperties();
@@ -867,7 +821,7 @@ function maybeSendNightCompleteAlert_(spreadsheet, nightDate) {
     let body =
       `All four teams have submitted for collection night ${dateKey}.\n\n` +
       `Acoustics: ${row[1]}\nImaging: ${row[2]}\nALAN Sensors: ${row[3]}\nData & QA: ${row[4]}\n`;
-    const noIssuesEverywhere = row[6] === 'Y' && row[7] === 'Y' && row[8] === 'Y' && row[9] === 'Y';
+    const noIssuesEverywhere = Object.values(CONFIG.TEAM_CONFIG).every((cfg) => row[cfg.issueCol - 1] === 'Y');
     if (noIssuesEverywhere) {
       body += '\nAll teams: no issues reported\n';
     }
@@ -967,7 +921,6 @@ function parseSubmissionFields_(rowMap) {
     ? issueSelections.some((s) => s !== CONFIG.ISSUE_NONE_TEXT)
     : false;
   const overrideChecked = (pick('override: complete hobo weekly export tonight') || '').toString().trim() !== '';
-  const fridayRoutingAnswer = (pick('is tonight a friday?') || '').toString().trim();
   const hoboWeeklyChecked = (pick('[friday export] weekly hobo export uploaded') || '').toString().trim() !== '';
 
   return {
@@ -981,7 +934,6 @@ function parseSubmissionFields_(rowMap) {
     issueCategories: issueSelections.join('; '),
     fieldNotes: notesKey ? (rowMap[notesKey] || '').toString().trim() : '',
     overrideChecked,
-    fridayRoutingAnswer,
     hoboWeeklyChecked,
     nightDateRaw
   };

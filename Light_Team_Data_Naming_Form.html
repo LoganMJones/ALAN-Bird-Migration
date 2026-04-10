@@ -79,6 +79,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .check-tag{font-size:10px;padding:2px 7px;border-radius:4px;margin-left:8px;font-family:var(--mono);white-space:nowrap;}
 .tag-warn{background:var(--amber-bg);color:var(--amber);}
 .tag-crit{background:rgba(232,84,84,0.15);color:var(--red);}
+.tag-friday{background:rgba(77,166,255,0.12);color:var(--blue);}
 
 /* sticky submit */
 .sticky-bottom{position:fixed;bottom:0;left:0;right:0;padding:14px 18px 20px;background:linear-gradient(transparent, var(--bg) 30%);pointer-events:none;}
@@ -348,7 +349,7 @@ const TEAMS = {
         {t:'HOBO-01 CSV exported to HOBO/HOBO-01/ (co-located with SQM)', h:'Cross-check lux vs SQM — same order of magnitude and trend expected'},
         {t:'HOBO-02 through HOBO-06 CSVs in their respective subfolders', h:'Export via HOBOware. Logging interval: confirm with Neisha (work plan: 60s · device inventory: 5min)', tag:'warn'},
         {t:'All 6 loggers: gap-free lux + temperature confirmed', h:''},
-        {t:'Friday weekly export uploaded to _calibration/HOBO/', h:'Weekly only — skip on non-Friday nights', tag:'warn'},
+        {t:'Friday weekly export uploaded to _calibration/HOBO/', h:'Weekly only — skip on non-Friday nights', tag:'friday'},
       ]},
       { name:'Spectrometer (SPEC-01)', items:[
         {t:'Near-onset session file uploaded to SPEC/ subfolder', h:'Dark frame collected before session'},
@@ -566,7 +567,7 @@ function selectTeam(team){
       row.innerHTML = `
         <div class="check-box" id="box-${key}"></div>
         <div class="check-text-wrap">
-          <div class="check-main">${item.t}${item.tag ? `<span class="check-tag tag-${item.tag}">${item.tag==='crit'?'critical':'friday only'}</span>`:''}
+          <div class="check-main">${item.t}${item.tag ? `<span class="check-tag tag-${item.tag}">${{crit:'critical',warn:'pending',friday:'friday only'}[item.tag]||item.tag}</span>`:''}
           </div>
           ${item.h?`<div class="check-hint">${item.h}</div>`:''}
         </div>`;

@@ -9,6 +9,14 @@
  * _calibration is created once and reused.
  */
 
+const DRIVE_CONFIG = {
+  HOBO_COUNT: 6,
+  SENSOR_SUFFIXES: ['SM4', 'SQM', 'SPEC', 'THERMAL', 'LUX', 'ALLSKY', 'LLV', 'WEATHER', 'ADMIN'],
+  AM_SUBFOLDERS: ['N', 'S'],
+  CALIBRATION_SUBFOLDERS: ['HOBO', 'SQM', 'baseline_readings'],
+  PERMANENT_FOLDERS: ['_admin', '_scripts']
+};
+
 function getOrCreateFolder_(parent, name) {
   const it = parent.getFoldersByName(name);
   return it.hasNext() ? it.next() : parent.createFolder(name);
@@ -19,37 +27,76 @@ function getOrCreateFolder_(parent, name) {
  * @param {string} nightToken Folder name for the night, e.g. 20260412_I (matches SOP 13 root).
  */
 function createNightlyTemplate(rootFolderId, nightToken) {
-  const root = DriveApp.getFolderById(rootFolderId);
-
-  const calibration = getOrCreateFolder_(root, '_calibration');
-  getOrCreateFolder_(calibration, 'HOBO');
-  getOrCreateFolder_(calibration, 'SQM');
-  getOrCreateFolder_(calibration, 'baseline_readings');
-
-  const night = getOrCreateFolder_(root, nightToken);
-  const p = nightToken;
-
-  getOrCreateFolder_(night, p + '_SM4');
-
-  const am = getOrCreateFolder_(night, p + '_AM');
-  getOrCreateFolder_(am, 'N');
-  getOrCreateFolder_(am, 'S');
-
-  getOrCreateFolder_(night, p + '_SQM');
-
-  const hobo = getOrCreateFolder_(night, p + '_HOBO');
-  for (var h = 1; h <= 6; h += 1) {
-    var id = h < 10 ? '0' + h : String(h);
-    getOrCreateFolder_(hobo, id);
+  if (!/^\d{8}_[IC]$/.test(nightToken)) {
+    throw new Error(
+      'Invalid nightToken "' + nightToken + '". ' +
+      'Expected format: YYYYMMDD_I (e.g. 20260412_I) or YYYYMMDD_C for Control.'
+    );
   }
 
-  getOrCreateFolder_(night, p + '_SPEC');
-  getOrCreateFolder_(night, p + '_THERMAL');
-  getOrCreateFolder_(night, p + '_LUX');
-  getOrCreateFolder_(night, p + '_ALLSKY');
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+  } catch (e) {
+    throw new Error('Could not acquire lock for createNightlyTemplate. Another instance may be running.');
+  }
 
-  getOrCreateFolder_(night, p + '_LLV');
+  try {
+    const createdBy = Session.getActiveUser().getEmail();
+    const createdAt = new Date().toISOString();
+    Logger.log(
+      'createNightlyTemplate started: token=%s rootId=%s user=%s time=%s',
+      nightToken,
+      rootFolderId,
+      createdBy,
+      createdAt
+    );
 
-  getOrCreateFolder_(night, p + '_WEATHER');
-  getOrCreateFolder_(night, p + '_ADMIN');
+    const root = DriveApp.getFolderById(rootFolderId);
+
+    // Permanent project folders — created once, reused every night.
+    DRIVE_CONFIG.PERMANENT_FOLDERS.forEach(function(name) {
+      getOrCreateFolder_(root, name);
+    });
+    const calibration = getOrCreateFolder_(root, '_calibration');
+    DRIVE_CONFIG.CALIBRATION_SUBFOLDERS.forEach(function(sub) {
+      getOrCreateFolder_(calibration, sub);
+    });
+    Logger.log('Permanent folders verified: _admin, _scripts, _calibration');
+
+    // Nightly folder tree.
+    const night = getOrCreateFolder_(root, nightToken);
+    const p = nightToken;
+    Logger.log('Nightly folder created: %s (id=%s)', nightToken, night.getId());
+
+    const am = getOrCreateFolder_(night, p + '_AM');
+    DRIVE_CONFIG.AM_SUBFOLDERS.forEach(function(sub) {
+      getOrCreateFolder_(am, sub);
+    });
+
+    const hobo = getOrCreateFolder_(night, p + '_HOBO');
+    for (var h = 1; h <= DRIVE_CONFIG.HOBO_COUNT; h += 1) {
+      var id = h < 10 ? '0' + h : String(h);
+      getOrCreateFolder_(hobo, id);
+    }
+
+    DRIVE_CONFIG.SENSOR_SUFFIXES.forEach(function(suffix) {
+      getOrCreateFolder_(night, p + '_' + suffix);
+    });
+    Logger.log('Sensor subfolders created under %s', nightToken);
+    Logger.log('createNightlyTemplate complete: %s', nightToken);
+
+    return {
+      nightToken: nightToken,
+      nightFolderId: night.getId(),
+      rootFolderId: root.getId(),
+      createdAt: new Date().toISOString(),
+      createdBy: createdBy,
+      sensorFolders: DRIVE_CONFIG.SENSOR_SUFFIXES.map(function(s) {
+        return p + '_' + s;
+      })
+    };
+  } finally {
+    lock.releaseLock();
+  }
 }
