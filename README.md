@@ -1,13 +1,13 @@
 # LIGHT Team Data Management System
 ## ALAN "W" Study - Baseline Year 2026 - Impact Site
 
-**Weber State University - Dr. John F. Cavitt - Data & QA: Aavash Ghising**
+**Weber State University - Dr. John F. Cavitt - Data & QA: Data Team**
 
 ---
 
 ## Overview
 
-This repository contains the complete data management infrastructure for the LIGHT Team's ALAN "W" Study at Weber State University. The system was built to satisfy the Data and Quality Assurance Coordinator deliverables from the pre-season work plan (March 30 - April 12, 2026) and covers Tasks 1, 2, and 4 assigned to Aavash Ghising.
+This repository contains the complete data management infrastructure for the LIGHT Team's ALAN "W" Study at Weber State University. The system was built to satisfy the Data and Quality Assurance Coordinator deliverables from the pre-season work plan (March 30 - April 12, 2026) and covers Tasks 1, 2, and 4 assigned to Data Team.
 
 The study measures how switching the campus "W" emblem between OFF, ON-white, and ON-purple illumination modes affects nocturnal bird migration, local stopover, flight behavior, and building-collision risk. Four sensor teams collect data each collection night beginning April 12, 2026.
 
