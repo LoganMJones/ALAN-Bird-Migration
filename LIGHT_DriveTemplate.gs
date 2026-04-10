@@ -83,6 +83,12 @@ function createNightlyTemplate(rootFolderId, nightToken) {
     DRIVE_CONFIG.SENSOR_SUFFIXES.forEach(function(suffix) {
       getOrCreateFolder_(night, p + '_' + suffix);
     });
+    const spec = getOrCreateFolder_(night, p + '_SPEC');
+    getOrCreateFolder_(spec, 'raw');
+    getOrCreateFolder_(spec, 'dark');
+    getOrCreateFolder_(spec, 'screencap');
+    const allsky = getOrCreateFolder_(night, p + '_ALLSKY');
+    getOrCreateFolder_(allsky, 'dark');
     Logger.log('Sensor subfolders created under %s', nightToken);
     Logger.log('createNightlyTemplate complete: %s', nightToken);
 

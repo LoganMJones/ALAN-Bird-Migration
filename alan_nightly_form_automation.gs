@@ -569,9 +569,11 @@ function addAlanSensorsSectionItems_(form) {
   addChecklistItem_(form, 'Dark frame collected before each session', true);
   addChecklistItem_(
     form,
-    '[AWAITING SOP CONFIRMATION] Spectrometer file format and export procedure confirmed',
-    false,
-    'Procedure not finalized; awaiting SOP confirmation of measurement variables/export format.'
+    'Spectral distribution image exported as PNG for each session (not JPG)',
+    true,
+    'The device exports spectral distribution images as JPG by default. ' +
+      'Re-export or convert each to PNG before uploading to YYYYMMDD_I_SPEC/raw/. ' +
+      'JPG is lossy and not acceptable for scientific image data.'
   );
 
   form.addSectionHeaderItem().setTitle('Handheld Lux Meter (LUX 01)');
@@ -588,12 +590,6 @@ function addAlanSensorsSectionItems_(form) {
     '[AWAITING SOP CONFIRMATION] Weather station export format and procedure confirmed',
     false,
     'Procedure not finalized; WeatherLink access and FM installation are pending.'
-  );
-  addChecklistItem_(
-    form,
-    '[AWAITING SOP CONFIRMATION] WEATHER sensor code confirmation documented',
-    false,
-    'Code is in active use but pending formal SOP 13 confirmation.'
   );
 
   addTeamIssueFields_(form, 'ALAN Sensors Team');
@@ -629,18 +625,6 @@ function addDataQaSectionItems_(form) {
     '[AWAITING SOP CONFIRMATION] Formal pass/fail QA criteria documented',
     false,
     'Procedure not finalized; use best judgment until SOP 12 is finalized.'
-  );
-  addChecklistItem_(
-    form,
-    '[AWAITING SOP CONFIRMATION] DeviceID prefix rule confirmed (unit-only, no sensor prefix)',
-    false,
-    'Current project decision uses unit-only IDs (e.g., 03, N, S) pending formal SOP confirmation.'
-  );
-  addChecklistItem_(
-    form,
-    '[AWAITING SOP CONFIRMATION] AM sensor code confirmation documented',
-    false,
-    'Code is in active use but pending formal SOP 13 confirmation.'
   );
 
   form.addSectionHeaderItem().setTitle('Admin upload');

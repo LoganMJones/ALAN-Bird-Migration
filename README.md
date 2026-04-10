@@ -221,6 +221,17 @@ The Data Return Lead runs the checksum script on the complete nightly folder at 
 | `gps` | Station GPS coordinates (WGS84) |
 | `w_treatment` | W status that night: `OFF`, `ON-white`, `ON-purple` |
 
+### Confirmed spectrometer file types (from device sample, April 10 2026)
+
+Each spectrometer session produces three files:
+
+| File | Format | Subfolder | Notes |
+|------|--------|-----------|-------|
+| Measurement data | CSV | `SPEC/raw/` | Device-generated, never renamed |
+| Spectral distribution image | PNG | `SPEC/raw/` | Device exports JPG — must re-export as PNG |
+| Screen capture | PNG | `SPEC/screencap/` | Manual export, named per SOP 13 |
+| Dark frame | PNG | `SPEC/dark/` | One per session, captured before measurement |
+
 **Recommended Python implementation (to build before April 12):**
 
 ```python
@@ -303,12 +314,7 @@ These items are flagged in the form and naming reference but require confirmatio
 
 | Item | Waiting on |
 |------|-----------|
-| AudioMoth device IDs - `N` and `S` vs `01` and `02` | Aavash / Dr. Cavitt |
-| `AM` sensor code - not in original SOP 13 list | Aavash / Dr. Cavitt |
-| `WEATHER` sensor code - not in original SOP 13 list | Aavash / Dr. Cavitt |
-| DeviceID prefix format - unit-only vs sensor-prefixed | Aavash / Dr. Cavitt |
 | HOBO logging interval - work plan says 60s, device inventory says 5min | Neisha Erickson |
-| Spectrometer file format and export procedure | Dr. Cavitt |
 | Weather station export procedure | FM installation + WeatherLink access |
 | Manifest field order (exact column sequence) | SOP 12 |
 | Formal QA pass/fail criteria | SOP 12 |
