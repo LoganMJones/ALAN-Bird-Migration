@@ -291,34 +291,37 @@ table.ref tr:last-child td { border-bottom: none; }
     padding: 0;
     margin: 0;
     max-width: 100%;
-    font-size: 10px;
+    font-size: 8.5px;
     line-height: 1.25;
-    zoom: 0.84;
+    zoom: 0.72;
+    orphans: 2;
+    widows: 2;
   }
   .print-bar { display: none; }
-  .pending-banner { margin-bottom: 10px; padding: 6px 10px; font-size: 10px; }
-  .doc-header { margin-bottom: 10px; padding-bottom: 8px; }
+  .pending-banner { margin-bottom: 7px; padding: 4px 7px; font-size: 10px; }
+  .doc-header { margin-bottom: 7px; padding-bottom: 6px; }
   .doc-title { font-size: 15px; margin-bottom: 1px; }
   .doc-subtitle { font-size: 10px; }
-  .doc-meta { font-size: 9px; margin-top: 3px; gap: 10px; }
-  .section { margin-bottom: 10px; break-inside: avoid; }
-  .section-title { font-size: 10px; margin-bottom: 6px; padding-bottom: 3px; }
-  .token-row { margin-bottom: 5px; }
-  .token-cell { padding: 4px 5px; }
+  .doc-meta { font-size: 9px; margin-top: 2px; gap: 7px; }
+  .section { margin-bottom: 6px; break-inside: avoid; }
+  .section-title { font-size: 10px; margin-bottom: 4px; padding-bottom: 2px; }
+  .token-row { margin-bottom: 4px; }
+  .token-cell { padding: 3px 4px; }
   .token-cell.header { font-size: 9px; padding: 4px 3px; }
   .token-cell.body { font-size: 9px; line-height: 1.22; }
-  .alert-box { padding: 6px 8px; margin-bottom: 6px; }
+  .alert-box { padding: 4px 6px; margin-bottom: 4px; }
   .alert-title { font-size: 10px; margin-bottom: 2px; }
   .alert-body { font-size: 9px; line-height: 1.25; }
   .mono-inline, .mono-cell { font-size: 9px; }
   table.ref { font-size: 10px; }
-  table.ref th { padding: 4px 6px; font-size: 9px; }
-  table.ref td { padding: 4px 6px; }
+  table.ref th { padding: 3px 4px; font-size: 9px; }
+  table.ref td { padding: 3px 5px; }
   .code-pill { font-size: 8px; padding: 1px 5px; }
-  .two-col { gap: 10px; }
-  .folder-box { padding: 8px 10px; font-size: 9px; line-height: 1.55; }
+  .two-col { gap: 8px; page-break-inside: avoid; break-inside: avoid; }
+  .folder-box { padding: 6px 7px; font-size: 9px; line-height: 1.4; }
   .folder-note { margin-top: 4px; font-size: 9px; line-height: 1.3; }
-  .footer { margin-top: 8px; padding-top: 6px; font-size: 9px; }
+  .footer { margin-top: 6px; padding-top: 4px; font-size: 9px; }
+  .nb-builder { display: none !important; }
   .token-cell.header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   table.ref th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   table.ref tr:nth-child(even) td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -341,20 +344,30 @@ table.ref tr:last-child td { border-bottom: none; }
   <button id="print-sheet" type="button" class="print-btn">Print this sheet</button>
 </div>
 
+<header class="doc-header">
+  <h1 class="doc-title">LIGHT Team &#128038; File Naming Reference</h1>
+  <p class="doc-subtitle">Quick Reference, ALAN &#8220;W&#8221; Study, Impact Site, Baseline Year 2026</p>
+  <div class="doc-meta">
+    <span>Weber State University</span>
+    <span>Dr. John F. Cavitt</span>
+    <span>Posted: <time datetime="2026-04">April 2026</time></span>
+  </div>
+</header>
+
 <div class="alert-box alert-red" style="margin-bottom:20px;">
   <div class="alert-title">All data exports must use a lossless file format</div>
   <div class="alert-body">
     <strong>Tabular data (sensor readings, measurements):</strong> export as
-    <span class="mono-inline">.csv</span> — never XLSX.<br>
+    <span class="mono-inline">.csv</span>, never XLSX.<br>
     <strong>Scientific images (dark frames, all-sky frames):</strong> export as
-    <span class="mono-inline">.fit</span> (FITS) where available — PNG is the required
+    <span class="mono-inline">.fit</span> (FITS) where available, PNG is the required
     fallback if FITS is not supported by the device.<br>
     <strong>Screen captures and field photographs:</strong> export as
-    <span class="mono-inline">.png</span> — never JPG or BMP.<br>
-    <strong>Audio:</strong> keep device-generated format —
+    <span class="mono-inline">.png</span>, never JPG or BMP.<br>
+    <strong>Audio:</strong> keep device-generated format,
     <span class="mono-inline">.wav</span> or <span class="mono-inline">.WAV</span>
     as produced. Never convert or re-encode.<br>
-    <strong>Video:</strong> keep device-generated format —
+    <strong>Video:</strong> keep device-generated format,
     <span class="mono-inline">.mp4</span> as produced. Never re-encode.<br><br>
     JPG compression permanently destroys pixel data and is not acceptable for any
     scientific export in this project. If your device only offers JPG, contact the
@@ -371,16 +384,6 @@ table.ref tr:last-child td { border-bottom: none; }
     correctly at ingest than to rename them after the manifest has been generated.
   </div>
 </div>
-
-<header class="doc-header">
-  <h1 class="doc-title">LIGHT Team &#128038; File Naming Reference</h1>
-  <p class="doc-subtitle">Quick Reference &nbsp;·&nbsp; ALAN &#8220;W&#8221; Study &nbsp;·&nbsp; Impact Site &nbsp;·&nbsp; Baseline Year 2026</p>
-  <div class="doc-meta">
-    <span>Weber State University</span>
-    <span>Dr. John F. Cavitt</span>
-    <span>Posted: <time datetime="2026-04">April 2026</time></span>
-  </div>
-</header>
 
 <main>
 <section class="section" aria-labelledby="section-1-title">
@@ -434,7 +437,7 @@ table.ref tr:last-child td { border-bottom: none; }
         <td><span class="code-pill">AM</span> &nbsp;AudioMoth</td>
         <td class="mono-cell">20260412_023012.WAV<br>
           <span style="font-size:10px;color:var(--text3);">
-            device-generated · attribution by subfolder (N/ or S/) only
+            device-generated, attribution by subfolder (N/ or S/) only
           </span>
         </td>
         <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw</span></td>
@@ -463,7 +466,7 @@ table.ref tr:last-child td { border-bottom: none; }
         <td class="mono-cell">
           LIGHT_I_SPEC_01_01_4923K_SpectralDistribution.png<br>
           <span style="font-size:10px;color:var(--text3);">
-            device generates as JPG — must be re-exported or converted to PNG ·
+            device generates as JPG, must be re-exported or converted to PNG,
             paired with each measurement CSV
           </span>
         </td>
@@ -508,11 +511,11 @@ table.ref tr:last-child td { border-bottom: none; }
     <div class="alert-title">Three sensors produce device-generated filenames</div>
     <div class="alert-body">
       <strong>AudioMoth:</strong> generates <span class="mono-inline">YYYYMMDD_hhmmss.WAV</span>.
-      Never renamed. Attribution is by subfolder only — <span class="mono-inline">AM/N/</span>
+      Never renamed. Attribution is by subfolder only: <span class="mono-inline">AM/N/</span>
       or <span class="mono-inline">AM/S/</span>.<br><br>
       <strong>Spectrometer:</strong> generates three file types per session:
       (1) measurement CSV <span class="mono-inline">LIGHT_I_SPEC_01_NN_CCTK.csv</span>,
-      (2) spectral distribution image — device exports as JPG but must be saved as PNG,
+      (2) spectral distribution image, device exports as JPG but must be saved as PNG,
       (3) screen capture PNG exported manually.
       Set memory title to <span class="mono-inline">LIGHT_I_SPEC_01</span> before each season.
       Raw files are never renamed. Spectral distribution images go in
@@ -536,7 +539,7 @@ table.ref tr:last-child td { border-bottom: none; }
         <tr><td><span class="code-pill">SM4</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">AM</span></td><td class="mono-cell">N, S</td></tr>
         <tr><td><span class="code-pill">SQM</span></td><td class="mono-cell">01-SD, 02-ETH</td></tr>
-        <tr><td><span class="code-pill">HOBO</span></td><td class="mono-cell">01 — 06</td></tr>
+        <tr><td><span class="code-pill">HOBO</span></td><td class="mono-cell">01 through 06</td></tr>
         <tr><td><span class="code-pill">SPEC</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">THERMAL</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">LUX</span></td><td class="mono-cell">01</td></tr>
@@ -578,8 +581,8 @@ table.ref tr:last-child td { border-bottom: none; }
 </main>
 
 <footer class="footer">
-  <span>Version 1.1 &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; LIGHT Team, Weber State University</span>
-  <span>Architected with Claude (Anthropic) + Cursor AI &nbsp;·&nbsp; Logan Jones</span>
+  <span>Version 1.1, April 2026, LIGHT Team, Weber State University</span>
+  <span>Architected with Claude (Anthropic) + Cursor AI, Logan Jones</span>
 </footer>
 
 <script>
