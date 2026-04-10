@@ -69,12 +69,51 @@ a.card:hover {
   color: var(--muted);
   font-size: 14px;
 }
+
+.diagrams {
+  margin: 32px 0;
+  display: grid;
+  gap: 28px;
+}
+
+.diagram-block {
+  margin: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.diagram-block img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.diagram-block figcaption {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+}
 </style>
 </head>
 <body>
 <main>
   <h1>LIGHT Team Documents</h1>
   <p class="lead">Quick links to project HTML documents.</p>
+
+  <section class="diagrams" aria-label="System diagrams">
+    <figure class="diagram-block">
+      <img src="./Images/LIGHT_system_architecture_fixed.svg" alt="LIGHT Team data system architecture: field teams, Google Form, Apps Script, and Google Drive." width="680" height="500" loading="lazy" decoding="async" />
+      <figcaption>System architecture</figcaption>
+    </figure>
+    <figure class="diagram-block">
+      <img src="./Images/LIGHT_nightly_flow_v4.svg" alt="LIGHT Team nightly data flow from form submission through validation and notifications." width="680" height="640" loading="lazy" decoding="async" />
+      <figcaption>Nightly data flow</figcaption>
+    </figure>
+  </section>
 
   <div class="links">
     <a class="card" href="./Light_Team_Data_Naming_Form.html">

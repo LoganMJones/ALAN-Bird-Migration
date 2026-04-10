@@ -25,6 +25,9 @@
  */
 
 const CONFIG = {
+  // ⚠ REQUIRED: Replace 'YourEmailHere' with your actual email before running buildNightlyFormAndSheet().
+  // All admin alerts, submission summaries, and reminder emails go to this address.
+  // During testing use your own email. Switch to Aavash's email before going live.
   ALERT_EMAIL: 'YourEmailHere',
   ORG_NAME: 'LIGHT Team, Weber State University',
   TIMEZONE: Session.getScriptTimeZone() || 'America/Denver',
@@ -64,12 +67,18 @@ function buildNightlyFormAndSheet() {
   const spreadsheet = SpreadsheetApp.create('LIGHT_ALAN-W_2026_I_nightly-submissions');
   form.setDestination(FormApp.DestinationType.SPREADSHEET, spreadsheet.getId());
 
+  initializeTrackingSheets_(spreadsheet);
+
   // Section 1: Night info (all teams).
   form.addSectionHeaderItem().setTitle('Section 1 - Night info (all teams)');
   form
     .addDateItem()
     .setTitle(CONFIG.FIELD_NIGHT_DATE)
-    .setHelpText('Use local collection-night date (folder root: YYYYMMDD_I).')
+    .setHelpText(
+      'Use the local Utah date (MDT) for the collection night. ' +
+        'Example: data collected tonight April 12 → enter April 12. ' +
+        'The Friday routing question below depends on this date — double-check before continuing.'
+    )
     .setRequired(true);
   form
     .addCheckboxItem()
@@ -84,11 +93,27 @@ function buildNightlyFormAndSheet() {
     .setTitle(CONFIG.FIELD_FRIDAY_ROUTING)
     .setChoiceValues(['Yes', 'No'])
     .setHelpText(
-      'Routing helper. Select Yes only if collection night date is Friday. ' +
-        'If you use override on a non-Friday (uncommon), also select Yes so the HOBO export section appears.'
+      'Check the date you entered above. If it is a Friday, select Yes — the HOBO weekly ' +
+        'export section will appear and is required. If any other day, select No. ' +
+        'The wrong answer will cause the HOBO export check to be skipped or incorrectly required.'
     )
     .setRequired(true);
-  form.addTextItem().setTitle('Submitter name').setRequired(true);
+  const rosterNames = getRosterNames_(spreadsheet);
+  if (rosterNames.length > 0) {
+    form
+      .addMultipleChoiceItem()
+      .setTitle('Submitter name')
+      .setChoiceValues(rosterNames)
+      .setRequired(true);
+  } else {
+    form
+      .addTextItem()
+      .setTitle('Submitter name')
+      .setHelpText(
+        'Roster sheet is empty — type your full name. Ask Aavash to populate the Roster sheet before first collection night.'
+      )
+      .setRequired(true);
+  }
 
   const teamItem = form
     .addMultipleChoiceItem()
@@ -101,6 +126,14 @@ function buildNightlyFormAndSheet() {
     .setTitle('Submission time')
     .setHelpText('Local time of this submission. (MDT - Utah)')
     .setRequired(true);
+
+  // W treatment status is intentionally NOT collected in this form.
+  // Treatment verification is the Nightly Field Lead's responsibility,
+  // documented in three authoritative places: the Master Field Log,
+  // the Randomization Calendar, and the treatment-verification photos
+  // uploaded to YYYYMMDD_I_ADMIN/. Collecting it here would create a
+  // potential conflict with those sources if values ever disagreed.
+  // Do not add it back without discussing with Aavash and Dr. Cavitt.
 
   // Team sections (branch targets).
   const acousticsSection = form.addPageBreakItem().setTitle('Section 2A - Acoustics Team');
@@ -150,7 +183,6 @@ function buildNightlyFormAndSheet() {
   props.setProperty(CONFIG.FORM_PROP_KEY, form.getId());
   props.setProperty(CONFIG.SHEET_PROP_KEY, spreadsheet.getId());
 
-  initializeTrackingSheets_(spreadsheet);
   Logger.log('Form URL: %s', form.getPublishedUrl());
   Logger.log('Edit URL: %s', form.getEditUrl());
   Logger.log('Sheet URL: %s', spreadsheet.getUrl());
@@ -481,7 +513,7 @@ function addImagingSectionItems_(form) {
   addChecklistItem_(form, 'File count plausible for session length (~120 frames/hr at 30-sec interval)', true);
   addChecklistItem_(form, 'Device internal storage cleared for next night [CRITICAL: 1 GB limit]', true);
 
-  form.addSectionHeaderItem().setTitle('Low-light Video - Sony ZV-1 (02)');
+  form.addSectionHeaderItem().setTitle('Low-light Video - Sony ZV-1 (01)');
   addChecklistItem_(form, 'DS######.mp4 files uploaded to YYYYMMDD_I_LLV/ - not renamed', true);
   addChecklistItem_(form, 'Focus lock confirmed (lens tape applied per SOP 6)', true);
   addChecklistItem_(form, 'Spot-check: file plays back, image quality acceptable', true);
@@ -495,7 +527,14 @@ function addAlanSensorsSectionItems_(form) {
   addChecklistItem_(form, 'Data values plausible (mag/arcsec^2), no unexpected gaps or spikes', true);
 
   form.addSectionHeaderItem().setTitle('HOBO Loggers (01-06)');
-  addChecklistItem_(form, 'HOBO 01 CSV exported to YYYYMMDD_I_HOBO/01/ (cross-check with SQM)', true);
+  addChecklistItem_(
+    form,
+    'HOBO 01 CSV exported to YYYYMMDD_I_HOBO/01/ (cross-check with SQM)',
+    true,
+    'Verify HOBO-01 lux readings are in the same order of magnitude as SQM sky brightness ' +
+      'and show the same general trend across the night (e.g. both decrease after W shutoff). ' +
+      'Formal pass/fail tolerance is pending SOP 12 confirmation — use qualitative judgement until then.'
+  );
   addChecklistItem_(form, 'HOBO 02 through HOBO 06 CSVs in respective subfolders', true);
   addChecklistItem_(form, 'All 6 loggers: gap-free lux and temperature records confirmed', true);
   addChecklistItem_(
@@ -512,9 +551,9 @@ function addAlanSensorsSectionItems_(form) {
   );
 
   form.addSectionHeaderItem().setTitle('Spectrometer (SPEC 01)');
-  addChecklistItem_(form, 'Treatment onset session file uploaded to YYYYMMDD_I_SPEC/', true);
-  addChecklistItem_(form, 'Midpoint session file uploaded', true);
-  addChecklistItem_(form, 'Treatment termination session file uploaded', true);
+  addChecklistItem_(form, 'Near-onset spectrometer session uploaded to YYYYMMDD_I_SPEC/', true);
+  addChecklistItem_(form, 'Near-midpoint spectrometer session uploaded', true);
+  addChecklistItem_(form, 'Near-termination spectrometer session uploaded', true);
   addChecklistItem_(form, 'Dark frame collected before each session', true);
   addChecklistItem_(
     form,
@@ -676,6 +715,14 @@ function initializeTrackingSheets_(spreadsheet) {
       'Data/QA no issues (Y/N)',
       'last_updated'
     ]);
+  }
+
+  // Roster sheet — Aavash populates this with team member names before first collection night.
+  const roster = getOrCreateSheet_(spreadsheet, 'Roster');
+  if (roster.getLastRow() === 0) {
+    roster.appendRow(['name', 'team', 'email']);
+    roster.appendRow(['Add team members here — one per row', '', '']);
+    Logger.log('Roster sheet created. Populate with team member names before first collection night.');
   }
 }
 
@@ -1031,6 +1078,16 @@ function getLinkedSpreadsheet_() {
 
 function getOrCreateSheet_(spreadsheet, sheetName) {
   return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+}
+
+function getRosterNames_(spreadsheet) {
+  const sheet = spreadsheet.getSheetByName('Roster');
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  // getRange(row, col, numRows, numCols): column A from row 2 for (getLastRow() - 1) rows — excludes row 1 header only
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  return values
+    .map((r) => (r[0] || '').toString().trim())
+    .filter((n) => n && n !== 'Add team members here — one per row');
 }
 
 function ensureSummarySchema_(summarySheet) {

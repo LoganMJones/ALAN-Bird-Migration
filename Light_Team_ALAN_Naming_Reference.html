@@ -217,6 +217,17 @@ table.ref tr:last-child td { border-bottom: none; }
   background: var(--teal-light);
   color: var(--teal);
 }
+.pending {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--amber);
+  background: var(--amber-light);
+  border: 1px solid #ffe082;
+}
 
 .folder-box {
   background: var(--gray);
@@ -299,7 +310,7 @@ table.ref tr:last-child td { border-bottom: none; }
   <button id="print-sheet" type="button" class="print-btn">Print this sheet</button>
 </div>
 
-<div class="pending-banner">Awaiting SOP confirmation: AM and WEATHER sensor codes, plus DeviceID prefix format. Remove this banner once SOP confirmation is complete.</div>
+<div class="pending-banner">Awaiting SOP confirmation: AM and WEATHER sensor codes, plus DeviceID prefix format.</div>
 
 <header class="doc-header">
   <h1 class="doc-title">LIGHT Team &#128038; File Naming Reference</h1>
@@ -362,7 +373,7 @@ table.ref tr:last-child td { border-bottom: none; }
       <tr><td><span class="code-pill">THERMAL</span> &nbsp;Thermal Binoculars</td><td class="mono-cell">20260413_I_THERMAL_01_0200.mp4</td></tr>
       <tr><td><span class="code-pill">LUX</span> &nbsp;Handheld Lux Meter</td><td class="mono-cell">20260413_I_LUX_01_0200.csv</td></tr>
       <tr><td><span class="code-pill">ALLSKY</span> &nbsp;All-sky Camera</td><td class="mono-cell">20260413_I_ALLSKY_01_0200.fit</td></tr>
-      <tr><td><span class="code-pill">LLV</span> &nbsp;Sony ZV-1</td><td class="mono-cell">20260413_I_LLV_02_0200.mp4</td></tr>
+      <tr><td><span class="code-pill">LLV</span> &nbsp;Sony ZV-1</td><td class="mono-cell">20260413_I_LLV_01_0200.mp4</td></tr>
       <tr><td><span class="code-pill">WEATHER</span> &nbsp;Davis Vantage Pro2</td><td class="mono-cell">20260413_I_WEATHER_01_0200.csv</td></tr>
     </tbody>
   </table>
@@ -376,14 +387,14 @@ table.ref tr:last-child td { border-bottom: none; }
       <thead><tr><th scope="col">Code</th><th scope="col">Device IDs</th></tr></thead>
       <tbody>
         <tr><td><span class="code-pill">SM4</span></td><td class="mono-cell">01</td></tr>
-        <tr><td><span class="code-pill">AM</span></td><td class="mono-cell">N, S</td></tr>
+        <tr><td><span class="code-pill">AM</span></td><td class="mono-cell">N, S <span class="pending">confirm with Aavash</span></td></tr>
         <tr><td><span class="code-pill">SQM</span></td><td class="mono-cell">01-SD, 02-ETH</td></tr>
         <tr><td><span class="code-pill">HOBO</span></td><td class="mono-cell">01 — 06</td></tr>
         <tr><td><span class="code-pill">SPEC</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">THERMAL</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">LUX</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">ALLSKY</span></td><td class="mono-cell">01</td></tr>
-        <tr><td><span class="code-pill">LLV</span></td><td class="mono-cell">02</td></tr>
+        <tr><td><span class="code-pill">LLV</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">WEATHER</span></td><td class="mono-cell">01</td></tr>
       </tbody>
     </table>

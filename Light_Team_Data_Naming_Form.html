@@ -118,7 +118,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .print-btn{width:100%;padding:13px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);margin-bottom:10px;}
 
 input[type=date]{color-scheme:dark;}
-@media print{.topbar,.manual-tabs,.print-btn{display:none!important;}.manual-view{display:block!important;}.screen{display:flex!important;}.check-card,.manual-checklist{break-inside:avoid;}}
+
+.nb-builder{margin-top:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;}
+.nb-builder-title{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.nb-builder-note{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:4px;}
+.nb-fieldset{border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-top:12px;}
+.nb-fieldset legend{font-size:11px;color:var(--text3);padding:0 6px;}
+.nb-sess label{display:block;margin:8px 0;font-size:13px;color:var(--text2);cursor:pointer;}
+.nb-sess input{margin-right:8px;vertical-align:middle;}
+.nb-sess input[type=time]{margin-left:6px;font-family:var(--mono);font-size:12px;color:var(--teal);background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;}
+.nb-out{font-family:var(--mono);font-size:12px;color:var(--teal);white-space:pre-line;line-height:1.6;margin-top:14px;}
+.nb-footnote{font-size:11px;color:var(--text3);margin-top:10px;line-height:1.45;}
+
+@media print{.topbar,.manual-tabs,.print-btn,.nb-builder{display:none!important;}.manual-view{display:block!important;}.screen{display:flex!important;}.check-card,.manual-checklist{break-inside:avoid;}}
 </style>
 
 <div id="s-home" class="screen active">
@@ -153,6 +165,23 @@ input[type=date]{color-scheme:dark;}
         <div class="tc-name">Data & QA</div>
         <div class="tc-sensors">Admin · Manifest · QA</div>
       </div>
+    </div>
+
+    <div class="nb-builder" aria-label="Derivative filename UTC tokens (SOP 13)">
+      <div class="nb-builder-title">Derivative name builder</div>
+      <p class="nb-builder-note">Uses the <strong>Night</strong> date above (MDT). Derivative filenames use UTC date + <span style="font-family:var(--mono)">StartTimeUTC</span>. No session is pre-selected — the UTC date does not roll forward until you choose one.</p>
+      <fieldset class="nb-fieldset nb-sess">
+        <legend>Session time (Utah / MDT)</legend>
+        <label><input type="radio" name="nb-sess" value="" checked /> Select a session (required)</label>
+        <label><input type="radio" name="nb-sess" value="0200" /> 8:00 PM MDT → <span style="font-family:var(--mono);color:var(--teal)">0200</span> UTC</label>
+        <label><input type="radio" name="nb-sess" value="0300" /> 9:00 PM MDT → <span style="font-family:var(--mono);color:var(--teal)">0300</span> UTC</label>
+        <label><input type="radio" name="nb-sess" value="0400" /> 10:00 PM MDT → <span style="font-family:var(--mono);color:var(--teal)">0400</span> UTC</label>
+        <label><input type="radio" name="nb-sess" value="custom" /> Custom (MDT)
+          <input type="time" id="nb-custom" value="20:00" disabled aria-label="Custom time MDT" />
+        </label>
+      </fieldset>
+      <div id="nb-out" class="nb-out" role="status">Select a session time to preview UTC tokens.</div>
+      <p id="nb-note" class="nb-footnote" aria-live="polite"></p>
     </div>
 
     <div style="margin-top:24px;">
@@ -208,9 +237,9 @@ const TEAMS = {
         {t:'Spot-check: opened 1 file, audio plays and is clean', h:''},
         {t:'SM4 SD card retained until next-day verification', h:'', tag:'crit'},
       ]},
-      { name:'AudioMoth (AM-01 & AM-02)', items:[
-        {t:'AM-01 raw .WAV files copied to …/AM-01/ subfolder', h:'YYYYMMDD_hhmmss.WAV — never rename'},
-        {t:'AM-02 raw .WAV files copied to …/AM-02/ subfolder', h:'Device ID confirmed via file metadata'},
+      { name:'AudioMoth (AM-N & AM-S)', items:[
+        {t:'AM-N raw .WAV files copied to …/AM/N/ subfolder', h:'YYYYMMDD_hhmmss.WAV — never rename'},
+        {t:'AM-S raw .WAV files copied to …/AM/S/ subfolder', h:'Device ID confirmed via pole tag (N = north, S = south)'},
         {t:'Spot-check: opened 1 file per unit', h:''},
         {t:'AudioMoth media retained until next-day verification', h:'', tag:'crit'},
       ]},
@@ -236,7 +265,7 @@ const TEAMS = {
         {t:'File count plausible for session length', h:'~120 frames/hr expected at 30-sec interval'},
         {t:'Device internal storage cleared for next night', h:'1 GB limit — offload is critical every night', tag:'crit'},
       ]},
-      { name:'Low-light Video (CAM-02 Sony ZV-1)', items:[
+      { name:'Low-light Video — Sony ZV-1 (LLV-01)', items:[
         {t:'DS######.mp4 files uploaded to LLV/ subfolder', h:'Do NOT rename raw files'},
         {t:'Focus lock confirmed — lens tape applied per SOP 6', h:''},
         {t:'Spot-check: file plays back, image quality acceptable', h:''},
@@ -254,15 +283,15 @@ const TEAMS = {
         {t:'No unexpected gaps or spikes in record', h:''},
       ]},
       { name:'HOBO Loggers (HOBO-01 through HOBO-06)', items:[
-        {t:'HOBO-01 CSV exported to HOBO/HOBO-01/ (co-located with SQM)', h:'Cross-check lux vs SQM reading weekly'},
-        {t:'HOBO-02 through HOBO-06 CSVs in their respective subfolders', h:'Export via HOBOware. 5-min interval.'},
+        {t:'HOBO-01 CSV exported to HOBO/HOBO-01/ (co-located with SQM)', h:'Cross-check lux vs SQM — same order of magnitude and trend expected'},
+        {t:'HOBO-02 through HOBO-06 CSVs in their respective subfolders', h:'Export via HOBOware. Logging interval: confirm with Neisha (work plan: 60s · device inventory: 5min)', tag:'warn'},
         {t:'All 6 loggers: gap-free lux + temperature confirmed', h:''},
         {t:'Friday weekly export uploaded to _calibration/HOBO/', h:'Weekly only — skip on non-Friday nights', tag:'warn'},
       ]},
       { name:'Spectrometer (SPEC-01)', items:[
-        {t:'8pm session file uploaded to SPEC/ subfolder', h:'Dark frame collected before session'},
-        {t:'9pm session file uploaded', h:''},
-        {t:'10pm session file uploaded', h:''},
+        {t:'Near-onset session file uploaded to SPEC/ subfolder', h:'Dark frame collected before session'},
+        {t:'Near-midpoint session file uploaded', h:'Dark frame collected before session'},
+        {t:'Near-termination session file uploaded', h:'Dark frame collected before session'},
         {t:'File format confirmed with Data/QA (TBD until software accessed)', h:'Update naming ref on first access', tag:'warn'},
       ]},
       { name:'Handheld Lux Meter (LUX-01)', items:[
@@ -313,12 +342,112 @@ const TEAMS = {
   }
 };
 
+const SESSION_UTC = { '0200': true, '0300': true, '0400': true };
+
+function addCalendarDaysYMD(y, m, d, delta) {
+  const u = new Date(Date.UTC(y, m - 1, d));
+  u.setUTCDate(u.getUTCDate() + delta);
+  const yy = u.getUTCFullYear();
+  const mm = String(u.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(u.getUTCDate()).padStart(2, '0');
+  return yy + mm + dd;
+}
+
+function buildName(localDateStr, sessionMode, customTime) {
+  if (!localDateStr) {
+    return {
+      ymd: '',
+      utcHHMM: '',
+      rollsOver: null,
+      note: 'Set the collection night date above to preview UTC tokens.'
+    };
+  }
+  const parts = localDateStr.split('-').map((x) => parseInt(x, 10));
+  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) {
+    return { ymd: '', utcHHMM: '', rollsOver: null, note: 'Invalid date.' };
+  }
+  const y = parts[0];
+  const mo = parts[1];
+  const d = parts[2];
+
+  if (!sessionMode) {
+    return {
+      ymd: '',
+      utcHHMM: '',
+      rollsOver: null,
+      note: 'Select a session time to compute UTC date and StartTimeUTC.'
+    };
+  }
+
+  let utcHHMM = '';
+  let rollsOver = false;
+
+  if (SESSION_UTC[sessionMode] === true) {
+    utcHHMM = sessionMode;
+    rollsOver = true;
+  } else if (sessionMode === 'custom') {
+    if (!customTime || !/^\d{1,2}:\d{2}$/.test(customTime)) {
+      return {
+        ymd: '',
+        utcHHMM: '',
+        rollsOver: null,
+        note: 'Enter a custom MDT time.'
+      };
+    }
+    const localHour = parseInt(customTime.split(':')[0], 10);
+    const localMin = parseInt(customTime.split(':')[1] || '0', 10);
+    const utcHour = localHour + 6;
+    rollsOver = utcHour >= 24;
+    const finalUTCHour = utcHour % 24;
+    const finalUTCMin = localMin;
+    utcHHMM =
+      String(finalUTCHour).padStart(2, '0') + String(finalUTCMin).padStart(2, '0');
+  } else {
+    return { ymd: '', utcHHMM: '', rollsOver: null, note: 'Unknown session mode.' };
+  }
+
+  const dayShift = rollsOver ? 1 : 0;
+  const ymd = addCalendarDaysYMD(y, mo, d, dayShift);
+  const note = rollsOver
+    ? 'This selection rolls to the next UTC calendar day for derivative filenames (StartTimeUTC after local midnight in UTC).'
+    : 'Same UTC calendar day as the local night date you entered.';
+
+  return { ymd, utcHHMM, rollsOver, note };
+}
+
+function refreshNameBuilder() {
+  const dateEl = document.getElementById('home-date');
+  const customEl = document.getElementById('nb-custom');
+  const outEl = document.getElementById('nb-out');
+  const noteEl = document.getElementById('nb-note');
+  if (!dateEl || !outEl || !noteEl) return;
+
+  const sess = (document.querySelector('input[name="nb-sess"]:checked') || {}).value || '';
+  if (sess === 'custom' && customEl) customEl.disabled = false;
+  else if (customEl) customEl.disabled = true;
+
+  const customVal = customEl && !customEl.disabled ? customEl.value : '';
+  const r = buildName(dateEl.value || '', sess, customVal);
+
+  if (r.ymd && r.utcHHMM) {
+    outEl.textContent = 'UTC date token: ' + r.ymd + '\nStartTimeUTC: ' + r.utcHHMM;
+  } else if (!dateEl.value) {
+    outEl.textContent = 'Set the night date above, then select a session time.';
+  } else if (!sess) {
+    outEl.textContent = 'Select a session time to preview UTC tokens.';
+  } else {
+    outEl.textContent = 'Enter a valid custom MDT time to preview UTC tokens.';
+  }
+  noteEl.textContent = r.note || '';
+}
+
 let currentTeam = null;
 let checkState = {};
 
 function updateHomeDate(){
   const d = document.getElementById('home-date').value;
   document.getElementById('home-date-display').textContent = d ? d.replace(/-/g,'') + '_I' : '';
+  refreshNameBuilder();
 }
 
 function goHome(){
@@ -440,8 +569,8 @@ const MANUAL = {
       {t:'SD card retained until verification',h:''},
     ]},
     {code:'AM', name:'AudioMoth ×2', items:[
-      {t:'AM-01 .WAV files → AM-01/ subfolder',h:'Never rename'},
-      {t:'AM-02 .WAV files → AM-02/ subfolder',h:''},
+      {t:'AM-N .WAV files → AM/N/ subfolder',h:'Never rename — pole tag N = north'},
+      {t:'AM-S .WAV files → AM/S/ subfolder',h:'Pole tag S = south'},
       {t:'Spot-check 1 file per unit',h:''},
       {t:'Media retained until verification',h:''},
     ]},
@@ -457,7 +586,7 @@ const MANUAL = {
       {t:'Dark frames collected + uploaded',h:''},
       {t:'Device storage cleared',h:'1 GB limit — critical'},
     ]},
-    {code:'LLV', name:'Sony ZV-1', items:[
+    {code:'LLV', name:'Sony ZV-1 (01)', items:[
       {t:'DS######.mp4 files uploaded to LLV/',h:'Do NOT rename'},
       {t:'Focus lock confirmed (lens tape)',h:''},
       {t:'Spot-check playback',h:''},
@@ -469,15 +598,15 @@ const MANUAL = {
       {t:'Values plausible, no gaps',h:''},
     ]},
     {code:'HOBO', name:'HOBO Loggers ×6', items:[
-      {t:'HOBO-01 CSV → HOBO/HOBO-01/',h:'Co-located with SQM'},
-      {t:'HOBO-02 through -06 in own subfolders',h:''},
+      {t:'HOBO-01 CSV → HOBO/HOBO-01/',h:'Co-located with SQM — cross-check lux vs SQM'},
+      {t:'HOBO-02 through -06 in own subfolders',h:'Interval: confirm with Neisha (60s vs 5min unresolved)'},
       {t:'All 6: gap-free lux + temp',h:''},
       {t:'Friday export → _calibration/HOBO/',h:'Fridays only'},
     ]},
     {code:'SPEC', name:'Spectrometer', items:[
-      {t:'8pm session uploaded',h:'Dark frame before each'},
-      {t:'9pm session uploaded',h:''},
-      {t:'10pm session uploaded',h:''},
+      {t:'Near-onset session uploaded',h:'Dark frame before each'},
+      {t:'Near-midpoint session uploaded',h:''},
+      {t:'Near-termination session uploaded',h:''},
     ]},
     {code:'LUX', name:'Handheld Lux', items:[
       {t:'8pm: 6 readings (horiz+4 cardinal+W)',h:'Record W bearing°'},
@@ -521,6 +650,12 @@ function switchManual(key, btn){
 }
 
 // init
+document.querySelectorAll('input[name="nb-sess"]').forEach((el) => {
+  el.addEventListener('change', refreshNameBuilder);
+});
+const nbCustomEl = document.getElementById('nb-custom');
+if (nbCustomEl) nbCustomEl.addEventListener('input', refreshNameBuilder);
+
 document.getElementById('home-date').value = new Date().toISOString().slice(0,10);
 updateHomeDate();
 buildManual('acoustics-m');
