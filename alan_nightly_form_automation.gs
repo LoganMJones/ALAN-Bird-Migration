@@ -29,6 +29,9 @@ const CONFIG = {
   // All admin alerts, submission summaries, and reminder emails go to this address.
   // During testing use your own email. Switch to Aavash's email before going live.
   ALERT_EMAIL: 'YourEmailHere',
+  // Demo safety switch: when true, outgoing emails are suppressed and logged.
+  // Set to false before production go-live.
+  DEMO_MODE: true,
   ORG_NAME: 'LIGHT Team, Weber State University',
   TIMEZONE: Session.getScriptTimeZone() || 'America/Denver',
   FORM_TITLE: 'LIGHT_ALAN-W_2026_I_nightly-submission-form',
@@ -280,7 +283,7 @@ function sendOutstandingReminders() {
     `Collection night: ${todayKey}\n` +
     `Outstanding teams by 11:30 PM:\n- ${missingTeams.join('\n- ')}\n\n` +
     `Please follow up with team leads.`;
-  MailApp.sendEmail(CONFIG.ALERT_EMAIL, subject, body);
+  sendEmail_(CONFIG.ALERT_EMAIL, subject, body, 'sendOutstandingReminders');
   props.setProperty(lockKey, new Date().toISOString());
 }
 
@@ -300,6 +303,19 @@ function getDeploymentInfo() {
   Logger.log('Form published URL: %s', form.getPublishedUrl());
   Logger.log('Form edit URL: %s', form.getEditUrl());
   Logger.log('Linked sheet URL: %s', sheet.getUrl());
+}
+
+function sendEmail_(to, subject, body, context) {
+  if (CONFIG.DEMO_MODE) {
+    Logger.log(
+      'DEMO_MODE: email suppressed (%s). to=%s subject=%s',
+      context || 'unspecified',
+      to || '',
+      subject || ''
+    );
+    return;
+  }
+  MailApp.sendEmail(to, subject, body);
 }
 
 /**
@@ -855,7 +871,7 @@ function maybeSendNightCompleteAlert_(spreadsheet, nightDate) {
     if (noIssuesEverywhere) {
       body += '\nAll teams: no issues reported\n';
     }
-    MailApp.sendEmail(CONFIG.ALERT_EMAIL, subject, body);
+    sendEmail_(CONFIG.ALERT_EMAIL, subject, body, 'maybeSendNightCompleteAlert_');
     props.setProperty(propKey, new Date().toISOString());
   } finally {
     lock.releaseLock();
@@ -893,7 +909,7 @@ function sendAdminSummaryEmail_(parsed, hoboValidation, issueFlag, summaryUpdate
     issueSection +
     '\n' +
     `Reminder: retain device media until next-day verification is complete.`;
-  MailApp.sendEmail(CONFIG.ALERT_EMAIL, subject, body);
+  sendEmail_(CONFIG.ALERT_EMAIL, subject, body, 'sendAdminSummaryEmail_');
 }
 
 function sendSubmitterReceipt_(parsed) {
@@ -906,7 +922,7 @@ function sendSubmitterReceipt_(parsed) {
     `Submitted by: ${parsed.submitter || ''}\n` +
     `Timestamp: ${parsed.timestamp || ''}\n\n` +
     `Reminder: retain device media until next-day verification is complete.`;
-  MailApp.sendEmail(parsed.respondentEmail, subject, body);
+  sendEmail_(parsed.respondentEmail, subject, body, 'sendSubmitterReceipt_');
 }
 
 function parseSubmissionFields_(rowMap) {
