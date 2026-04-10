@@ -346,9 +346,11 @@ table.ref tr:last-child td { border-bottom: none; }
   <div class="alert-body">
     <strong>Tabular data (sensor readings, measurements):</strong> export as
     <span class="mono-inline">.csv</span> — never XLSX.<br>
-    <strong>Images (dark frames, screen captures, field photographs):</strong> export as
-    <span class="mono-inline">.png</span> — never JPG or BMP.
-    PNG is the required fallback when a scientific format (FITS, TIFF) is not available.<br>
+    <strong>Scientific images (dark frames, all-sky frames):</strong> export as
+    <span class="mono-inline">.fit</span> (FITS) where available — PNG is the required
+    fallback if FITS is not supported by the device.<br>
+    <strong>Screen captures and field photographs:</strong> export as
+    <span class="mono-inline">.png</span> — never JPG or BMP.<br>
     <strong>Audio:</strong> keep device-generated format —
     <span class="mono-inline">.wav</span> or <span class="mono-inline">.WAV</span>
     as produced. Never convert or re-encode.<br>
