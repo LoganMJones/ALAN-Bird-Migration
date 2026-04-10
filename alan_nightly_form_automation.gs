@@ -515,7 +515,7 @@ function addImagingSectionItems_(form) {
 
   form.addSectionHeaderItem().setTitle('All-sky Camera (01)');
   addChecklistItem_(form, '.FIT files uploaded to YYYYMMDD_I_ALLSKY/ - not renamed', true);
-  addChecklistItem_(form, 'Dark frames collected at end of session and uploaded', true);
+  addChecklistItem_(form, 'Dark frames collected at end of session and uploaded to YYYYMMDD_I_ALLSKY/dark/', true);
   addChecklistItem_(form, 'File count plausible for session length (~120 frames/hr at 30-sec interval)', true);
   addChecklistItem_(form, 'Device internal storage cleared for next night [CRITICAL: 1 GB limit]', true);
 
@@ -618,7 +618,7 @@ function addDataQaSectionItems_(form) {
   addChecklistItem_(form, 'HOBO: all 6 CSVs opened, timestamps and values plausible', true);
   addChecklistItem_(form, 'SQM: CSV contains full overnight record, no gaps', true);
   addChecklistItem_(form, 'LUX: 3 sessions present, 6 readings each', true);
-  addChecklistItem_(form, 'ALLSKY: frame count plausible, dark frames present', true);
+  addChecklistItem_(form, 'ALLSKY: frame count plausible, dark frames present in YYYYMMDD_I_ALLSKY/dark/', true);
   addChecklistItem_(form, 'THERMAL and LLV: files play back with no corruption', true);
   addChecklistItem_(
     form,

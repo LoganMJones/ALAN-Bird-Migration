@@ -331,7 +331,7 @@ const TEAMS = {
       ]},
       { name:'All-sky Camera (CAM-01)', items:[
         {t:'IMG#.FIT files uploaded to ALLSKY/ subfolder', h:'~30-sec frames — do NOT rename .FIT files'},
-        {t:'Dark frames collected at end of session and uploaded', h:''},
+        {t:'Dark frames collected at end of session and uploaded to ALLSKY/dark/ subfolder', h:''},
         {t:'File count plausible for session length', h:'~120 frames/hr expected at 30-sec interval'},
         {t:'Device internal storage cleared for next night', h:'1 GB limit — offload is critical every night', tag:'crit'},
       ]},
@@ -395,7 +395,7 @@ const TEAMS = {
         {t:'HOBO: all 6 CSVs opened — timestamps and values plausible', h:''},
         {t:'SQM: CSV contains full overnight record, no gaps', h:''},
         {t:'LUX: 3 sessions present, 6 readings each', h:''},
-        {t:'ALLSKY: frame count plausible, dark frames present', h:''},
+        {t:'ALLSKY: frame count plausible, dark frames present in ALLSKY/dark/', h:''},
         {t:'THERMAL + LLV: files play back, no corruption', h:''},
       ]},
       { name:'Admin upload', items:[
@@ -653,7 +653,7 @@ const MANUAL = {
     ]},
     {code:'ALLSKY', name:'All-sky Camera', items:[
       {t:'IMG#.FIT files uploaded to ALLSKY/',h:'Do NOT rename'},
-      {t:'Dark frames collected + uploaded',h:''},
+      {t:'Dark frames collected + uploaded to ALLSKY/dark/',h:''},
       {t:'Device storage cleared',h:'1 GB limit — critical'},
     ]},
     {code:'LLV', name:'Sony ZV-1 (01)', items:[

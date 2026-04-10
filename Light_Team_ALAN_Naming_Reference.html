@@ -344,11 +344,19 @@ table.ref tr:last-child td { border-bottom: none; }
 <div class="alert-box alert-red" style="margin-bottom:20px;">
   <div class="alert-title">All data exports must use a lossless file format</div>
   <div class="alert-body">
-    Never export scientific data as JPG — JPG compression permanently destroys pixel
-    data and corrupts calibration files. Use <strong>PNG</strong> for all image exports
-    (dark frames, screen captures, field photographs). Use <strong>CSV</strong> for all
-    tabular data exports. If your device only offers JPG, contact the Data team before
-    exporting. Do not assume JPG is acceptable because it is a default option.
+    <strong>Tabular data (sensor readings, measurements):</strong> export as
+    <span class="mono-inline">.csv</span> — never XLSX.<br>
+    <strong>Images (dark frames, screen captures, field photographs):</strong> export as
+    <span class="mono-inline">.png</span> — never JPG or BMP.
+    PNG is the required fallback when a scientific format (FITS, TIFF) is not available.<br>
+    <strong>Audio:</strong> keep device-generated format —
+    <span class="mono-inline">.wav</span> or <span class="mono-inline">.WAV</span>
+    as produced. Never convert or re-encode.<br>
+    <strong>Video:</strong> keep device-generated format —
+    <span class="mono-inline">.mp4</span> as produced. Never re-encode.<br><br>
+    JPG compression permanently destroys pixel data and is not acceptable for any
+    scientific export in this project. If your device only offers JPG, contact the
+    Data team before exporting.
   </div>
 </div>
 
@@ -554,6 +562,7 @@ table.ref tr:last-child td { border-bottom: none; }
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_THERMAL/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_LUX/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_ALLSKY/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dark/ <span class="note">← dark frames</span><br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_LLV/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_WEATHER/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_ADMIN/ <span class="note">← manifest here</span>

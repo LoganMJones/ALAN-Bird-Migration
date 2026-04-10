@@ -197,6 +197,7 @@ LIGHT_ALAN-W_2026/
     YYYYMMDD_I_THERMAL/
     YYYYMMDD_I_LUX/
     YYYYMMDD_I_ALLSKY/
+      dark/         <- all-sky dark frames
     YYYYMMDD_I_LLV/
     YYYYMMDD_I_WEATHER/
     YYYYMMDD_I_ADMIN/   <- manifest.csv, Field Log, Time Sync, treatment photos
