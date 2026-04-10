@@ -41,10 +41,10 @@
  */
 
 const CONFIG = {
-  // ⚠ REQUIRED: Replace 'YourEmailHere' with your actual email before running buildNightlyFormAndSheet().
+  // ⚠ REQUIRED: Replace with your actual email before running buildNightlyFormAndSheet().
   // All admin alerts, submission summaries, and reminder emails go to this address.
   // During testing use your own email. During production set to a data admin.
-  ALERT_EMAIL: 'YourEmailHere',
+  ALERT_EMAIL: 'loganjones1@weber.edu',
   // Demo safety switch: when true, outgoing emails are suppressed and logged.
   // Set to false before production go-live.
   DEMO_MODE: true,
