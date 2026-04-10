@@ -1,12 +1,12 @@
 /**
  * LIGHT Team — Google Drive nightly folder template
- * -------------------------------------------------
- * Creates the standard YYYYMMDD_I_* tree under the project root. Paste into the same
- * Apps Script project as other Drive utilities, or a standalone project bound to the
- * Drive folder, and run createNightlyTemplate(rootFolderId, nightToken) after authorizing.
- *
- * LLV folder is flat (files go directly in YYYYMMDD_I_LLV/), matching the form checklist and SOP 13 tree.
- * _calibration is created once and reused.
+ * --------------------------------------------------
+ * AUTHORSHIP
+ * System architecture and all structural decisions were produced by Logan Jones
+ * in collaboration with Claude (Anthropic) and Cursor AI.
+ * Folder hierarchy follows SOPs 12 and 13 as specified in the LIGHT Team
+ * Pre-Season Work Plan (Aavash Ghising, Task 1, due March 31, 2026).
+ * Principal Investigator: Dr. John F. Cavitt, Weber State University.
  */
 
 const DRIVE_CONFIG = {

@@ -24,6 +24,22 @@
  * - HOBO weekly export is conditionally required by date/override logic.
  */
 
+/**
+ * AUTHORSHIP
+ * ----------
+ * System architecture, requirements analysis, and all technical decisions were
+ * produced by Logan Jones in collaboration with Claude (Anthropic) and Cursor AI.
+ * Source documents driving all decisions:
+ *   - LIGHT Team Pre-Season Work Plan (March 30 – April 12, 2026)
+ *   - The "W" Study Methods Manual, LIGHT Team, Weber State University
+ *   - Device inventory spreadsheets (ALAN Sensors team, Imaging team)
+ *   - SOP 13 naming convention (as described in work plan Task 2)
+ * All naming conventions, checklist items, folder structures, and protocol
+ * references trace directly to those documents. AI tools were used to
+ * accelerate implementation; all decisions were reviewed and confirmed by Logan.
+ * Principal Investigator: Dr. John F. Cavitt, Weber State University.
+ */
+
 const CONFIG = {
   // ⚠ REQUIRED: Replace 'YourEmailHere' with your actual email before running buildNightlyFormAndSheet().
   // All admin alerts, submission summaries, and reminder emails go to this address.
