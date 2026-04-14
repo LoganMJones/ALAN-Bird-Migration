@@ -689,6 +689,7 @@ function addTeamIssueFields_(form, teamLabel) {
       2,
       0,
       'SD card will not mount (see SOP 12 troubleshooting)',
+      'Corrupt file detected',
       'Checksum mismatch detected',
       'Manifest fields missing or incomplete',
       'Institutional server unavailable — backup copy made'
