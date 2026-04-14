@@ -386,8 +386,16 @@ const TEAMS = {
       ]},
       { name:'Checksum & manifest', items:[
         {t:'SHA-256 checksum script run on full nightly folder', h:''},
-        {t:'manifest.csv generated and saved to ADMIN/', h:'Fields: filename, path, hash, deviceID, start/stop, GPS, treatment'},
+        {
+          t:'manifest.csv fields: filename, file_path, sha256, device_id, start_time, stop_time, gps, w_treatment',
+          h:'Field order confirmed per SOP 12. All columns required.'
+        },
         {t:'File counts verified against Expected Files Table (all teams)', h:'Flag any missing datasets immediately', tag:'crit'},
+        {
+          t:'File count on primary copy verified against source media',
+          h:'SOP 12 step 8 — count must match exactly. Record any discrepancy in Field Log.',
+          tag:'crit'
+        },
       ]},
       { name:'Spot-check QA', items:[
         {t:'SM4: 1 .wav file opened and verified', h:''},
@@ -397,6 +405,10 @@ const TEAMS = {
         {t:'LUX: 3 sessions present, 6 readings each', h:''},
         {t:'ALLSKY: frame count plausible, dark frames present in ALLSKY/dark/', h:''},
         {t:'THERMAL + LLV: files play back, no corruption', h:''},
+        {
+          t:'No corrupt, empty, or misattributed files found',
+          h:'SOP 12 step 7 — if any found, stop and notify Data and QA Coordinator immediately. Do not alter files.'
+        },
       ]},
       { name:'Admin upload', items:[
         {t:'Field Log uploaded to ADMIN/', h:''},
@@ -407,6 +419,11 @@ const TEAMS = {
         {t:'Secondary backup copied to encrypted external drive (SOP 12)', h:'', tag:'crit'},
         {t:'Original device media retained until next-day verification', h:''},
         {t:'Data submission checklist sent to Dr. Cavitt', h:''},
+        {
+          t:'Nightly Field Lead sign-off confirmed',
+          h:'SOP 12 step 10 — required before shift is considered complete.',
+          tag:'crit'
+        },
       ]},
     ]
   }
@@ -691,12 +708,15 @@ const MANUAL = {
     {code:'ADMIN', name:'Nightly Admin', items:[
       {t:'Nightly folder created from template',h:'All subfolders present'},
       {t:'All team submissions received',h:''},
-      {t:'SHA-256 manifest generated → ADMIN/',h:''},
+      {t:'SHA-256 manifest generated → ADMIN/', h:'Fields: filename, file_path, sha256, device_id, start_time, stop_time, gps, w_treatment (SOP 12 confirmed)'},
       {t:'File counts vs Expected Files Table',h:'Flag missing data'},
       {t:'Spot-check 1 file per sensor stream',h:''},
+      {t:'File count verified against source media', h:'SOP 12 step 8'},
+      {t:'No corrupt files found in spot-check', h:'SOP 12 step 7 — notify Data and QA if found'},
       {t:'Field Log, Time Sync, photos → ADMIN/',h:''},
       {t:'Encrypted drive backup (SOP 12)',h:'Critical'},
       {t:'Media retained until next-day verify',h:''},
+      {t:'Nightly Field Lead sign-off confirmed', h:'SOP 12 step 10 — required before departure'},
     ]},
   ],
 };

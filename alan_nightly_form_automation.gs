@@ -596,7 +596,7 @@ function addAlanSensorsSectionItems_(form) {
 }
 
 function addDataQaSectionItems_(form) {
-  form.addSectionHeaderItem().setTitle('Folder setup');
+  form.addSectionHeaderItem().setTitle('Folder setup (Data and Equipment Return Lead)');
   addChecklistItem_(form, 'Nightly folder created from template: YYYYMMDD_I/', true);
   addChecklistItem_(form, 'All sensor subfolders present before uploads began', true);
   addChecklistItem_(form, 'All team submissions received (Acoustics, Imaging, ALAN Sensors)', true);
@@ -606,11 +606,18 @@ function addDataQaSectionItems_(form) {
   addChecklistItem_(form, 'manifest.csv generated and saved to YYYYMMDD_I_ADMIN/', true);
   addChecklistItem_(
     form,
-    '[AWAITING SOP CONFIRMATION] Manifest field order confirmed (filename, path, hash, deviceID, start, stop, GPS, W treatment)',
-    false,
-    'Procedure not finalized; placeholder fields are known but exact order is pending.'
+    'manifest.csv fields confirmed: filename, file_path, sha256, device_id, start_time, stop_time, gps, w_treatment',
+    true,
+    'Field order per SOP 12. Run the SHA-256 checksum script and verify all columns are present before saving manifest to YYYYMMDD_I_ADMIN/.'
   );
   addChecklistItem_(form, 'File counts verified against Expected Files Table', true);
+  addChecklistItem_(
+    form,
+    'File count on primary Drive copy verified against source media for all devices',
+    true,
+    'SOP 12 step 8: count must match exactly. Record any discrepancy in the Field Log ' +
+      'and notify the Data and QA Coordinator before erasing any media.'
+  );
 
   form.addSectionHeaderItem().setTitle('Spot-check QA');
   addChecklistItem_(form, 'SM4: 1 .wav file opened and verified', true);
@@ -620,6 +627,15 @@ function addDataQaSectionItems_(form) {
   addChecklistItem_(form, 'LUX: 3 sessions present, 6 readings each', true);
   addChecklistItem_(form, 'ALLSKY: frame count plausible, dark frames present in YYYYMMDD_I_ALLSKY/dark/', true);
   addChecklistItem_(form, 'THERMAL and LLV: files play back with no corruption', true);
+  addChecklistItem_(
+    form,
+    'No corrupt, empty, or misattributed files found during spot-check',
+    true,
+    'SOP 12 step 7: if any file appears corrupt or misattributed, stop immediately. ' +
+      'Do not alter any files. Notify the Data and QA Coordinator and leave original ' +
+      'media untouched. Document in Field Log and select "Corrupt file detected" in ' +
+      'the issues field above.'
+  );
   addChecklistItem_(
     form,
     '[AWAITING SOP CONFIRMATION] Formal pass/fail QA criteria documented',
@@ -641,6 +657,14 @@ function addDataQaSectionItems_(form) {
   );
   addChecklistItem_(form, 'Device media retained until next-day verification complete', true);
   addChecklistItem_(form, 'Data submission confirmation sent to project lead', true);
+  addChecklistItem_(
+    form,
+    'Nightly Field Lead has reviewed and signed off on ingest completion',
+    true,
+    'SOP 12 step 10: Nightly Field Lead confirms primary copy complete, manifest ' +
+      'generated, secondary backup complete, spot-check verified, media retained, ' +
+      'and Field Log filed before signing off.'
+  );
 
   addTeamIssueFields_(form, 'Data & QA');
 }
@@ -651,18 +675,29 @@ function addChecklistItem_(form, title, required, helpText) {
 }
 
 function addTeamIssueFields_(form, teamLabel) {
+  const issueChoices = [
+    CONFIG.ISSUE_NONE_TEXT,
+    'Equipment malfunction or failure',
+    'File missing or could not be located',
+    'Protocol deviation (explain in notes below)',
+    'Weather or site access issue',
+    'Pending item not yet resolved',
+    'Other (explain in notes below)'
+  ];
+  if (teamLabel === 'Data & QA') {
+    issueChoices.splice(
+      2,
+      0,
+      'SD card will not mount (see SOP 12 troubleshooting)',
+      'Checksum mismatch detected',
+      'Manifest fields missing or incomplete',
+      'Institutional server unavailable — backup copy made'
+    );
+  }
   form
     .addCheckboxItem()
     .setTitle(`Issues or deviations (${teamLabel})`)
-    .setChoiceValues([
-      CONFIG.ISSUE_NONE_TEXT,
-      'Equipment malfunction or failure',
-      'File missing or could not be located',
-      'Protocol deviation (explain in notes below)',
-      'Weather or site access issue',
-      'Pending item not yet resolved',
-      'Other (explain in notes below)'
-    ])
+    .setChoiceValues(issueChoices)
     .setRequired(true);
   form
     .addParagraphTextItem()

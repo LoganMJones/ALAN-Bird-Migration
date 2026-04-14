@@ -108,6 +108,9 @@ Each team uploads raw files to their assigned subfolders as they complete ingest
 ### After ingest (each team lead)
 
 Open the Google Form URL and complete the submission checklist for your team. The form routes you to your team's specific sensor checklist. All items must be confirmed before the submit button activates.
+- The Nightly Field Lead reviews ingest status and signs off before departure —
+  confirms primary copy complete, manifest generated, secondary backup complete,
+  spot-check verified, media retained, and Field Log filed (SOP 12 step 10)
 
 ### After all four teams submit
 
@@ -164,6 +167,18 @@ YYYYMMDD_Site_SensorType_DeviceID_StartTimeUTC.ext
 20260413_I_WEATHER_01_0200.csv
 ```
 
+### Naming corrections (SOP 13)
+
+If a file is named incorrectly after ingest:
+1. Do not delete or overwrite the incorrectly named file
+2. Move it to `_to_rename/` in the project root
+3. Create the correctly named version in the correct nightly subfolder
+4. Document both the error and the correction in the Master Field Log
+5. Note the issue in the ingest manifest
+
+If a device-generated raw file has a garbled or duplicate name, preserve it exactly
+as-is, document in the Field Log and manifest, and flag to the Data and QA Coordinator.
+
 ### Raw files - keep exactly as produced by the device
 
 ```text
@@ -185,6 +200,7 @@ LIGHT_ALAN-W_2026/
     SQM/
     baseline_readings/
   _scripts/
+  _to_rename/       <- SOP 13 correction folder for naming errors
   YYYYMMDD_I/       <- one per collection night (local Utah date)
     YYYYMMDD_I_SM4/
     YYYYMMDD_I_AM/
@@ -209,14 +225,14 @@ LIGHT_ALAN-W_2026/
 
 The Data Return Lead runs the checksum script on the complete nightly folder at end of shift. The output `manifest.csv` goes into `YYYYMMDD_I_ADMIN/`.
 
-**Required columns (SOP 12 - exact order pending confirmation):**
+**Required columns (SOP 12 confirmed order):**
 
 | Column | Content |
 |--------|---------|
 | `filename` | Original device-generated filename |
 | `file_path` | Assigned project file path in Drive |
 | `sha256` | SHA-256 hash of the file |
-| `device_id` | Project device ID (e.g. `SM4-01`, `HOBO-03`) |
+| `device_id` | Project device ID (e.g. HOBO-03, SM4-01) |
 | `start_time` | Recording start time (UTC) |
 | `stop_time` | Recording stop time (UTC) if known |
 | `gps` | Station GPS coordinates (WGS84) |
@@ -309,6 +325,18 @@ Logs the Form URL, edit URL, and Sheet URL to the execution log.
 
 ---
 
+## SOP 12 Troubleshooting Reference
+
+| Problem | Action |
+|---------|--------|
+| SD card will not mount | Try a second card reader or USB port. Try a different computer. Do not force the card. Set aside for the Data and QA Coordinator if still unresponsive. |
+| Files copy incompletely or with errors | Stop copying. Consult the Data and QA Coordinator before reformatting anything. The original media may be the only intact copy. |
+| Checksum mismatch | Re-copy the affected file from original media. If mismatch persists, source file may be corrupt. Flag for Data and QA Coordinator. |
+| Manifest fields missing | Re-run the checksum script with correct parameters. Consult Data and QA Coordinator if template is unclear. |
+| Institutional server unavailable | Copy to encrypted external drive as primary backup. Create a second external copy if another drive is available. Note the deviation and complete the server copy the next day. |
+
+---
+
 ## Pending SOP Confirmations
 
 These items are flagged in the form and naming reference but require confirmation from Aavash or Dr. Cavitt before being finalized:
@@ -317,8 +345,6 @@ These items are flagged in the form and naming reference but require confirmatio
 |------|-----------|
 | HOBO logging interval - work plan says 60s, device inventory says 5min | Neisha Erickson |
 | Weather station export procedure | FM installation + WeatherLink access |
-| Manifest field order (exact column sequence) | SOP 12 |
-| Formal QA pass/fail criteria | SOP 12 |
 | SQM Ethernet model (02-ETH) installation | FM roof approval |
 
 ---
@@ -339,6 +365,9 @@ These items are flagged in the form and naming reference but require confirmatio
 - String-based field parsing (`header.indexOf(...)`) means form question text must not be changed after go-live without updating the corresponding `CONFIG` constant.
 - Email delivery has no retry mechanism. Check the Apps Script execution log if an expected email does not arrive.
 - The SHA-256 manifest script (Task 3) has not been built and must be completed before April 12.
+- SOP 12 defines QA as qualitative spot-check verification only. No formal
+  pass/fail criteria exist — verify readability, correct attribution, and
+  plausible timestamps and values.
 
 ---
 
@@ -348,6 +377,7 @@ These items are flagged in the form and naming reference but require confirmatio
 |------|--------|
 | Principal Investigator | Dr. John F. Cavitt |
 | Operations Coordinator | Anna Barry |
+| Data and Equipment Return Lead | Assigned nightly per shift schedule |
 | Data & QA Coordinator | Aavash Ghising |
 | Acoustics Team Lead | Davis Swanson |
 | ALAN Sensors Team Lead | Neisha Erickson |

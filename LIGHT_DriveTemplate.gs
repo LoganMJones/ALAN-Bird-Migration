@@ -58,6 +58,24 @@ function createNightlyTemplate(rootFolderId, nightToken) {
     DRIVE_CONFIG.PERMANENT_FOLDERS.forEach(function(name) {
       getOrCreateFolder_(root, name);
     });
+    getOrCreateFolder_(root, '_to_rename');
+    const toRename = getOrCreateFolder_(root, '_to_rename');
+    const readmeContent =
+      'SOP 13 — Correction folder\n\n' +
+      'Place files here when:\n' +
+      '- A file was named incorrectly at ingest\n' +
+      '- A device-generated name is garbled, duplicated, or problematic\n\n' +
+      'For each file placed here:\n' +
+      '1. Preserve the original file exactly as-is\n' +
+      '2. Create the correctly named version in the correct nightly subfolder\n' +
+      '3. Document both the error and the correction in the Master Field Log\n' +
+      '4. Note the issue in the ingest manifest\n\n' +
+      'Do not delete, overwrite, or rename files directly in place.\n' +
+      'Do not erase original device media until the Data and QA Coordinator confirms resolution.';
+    const existing = toRename.getFilesByName('README.txt');
+    if (!existing.hasNext()) {
+      toRename.createFile('README.txt', readmeContent, MimeType.PLAIN_TEXT);
+    }
     const calibration = getOrCreateFolder_(root, '_calibration');
     DRIVE_CONFIG.CALIBRATION_SUBFOLDERS.forEach(function(sub) {
       getOrCreateFolder_(calibration, sub);

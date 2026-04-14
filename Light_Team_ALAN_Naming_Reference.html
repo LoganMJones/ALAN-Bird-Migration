@@ -354,6 +354,14 @@ table.ref tr:last-child td { border-bottom: none; }
   </div>
 </header>
 
+<div class="alert-box alert-red">
+  <div class="alert-title"><strong>Critical:</strong> raw files are NEVER renamed at ingest</div>
+  <div class="alert-body">Device-generated files must be ingested exactly as produced. This convention applies to <strong>derivative and processed outputs only</strong> (detection results, summaries, exports). Renaming raw files breaks SHA-256 checksum verification.<br>
+  <span class="mono-inline">Keep as-is: &nbsp;SM4_20260412_023012.wav &nbsp;|&nbsp; 20260412_023012.WAV &nbsp;|&nbsp; IMG1.FIT &nbsp;|&nbsp; DS000001.mp4</span><br>If a naming error occurs after ingest: do not delete. Move to
+  <span class="mono-inline">_to_rename/</span>, create the correctly named version
+  in the correct subfolder, and document both in the Field Log (SOP 13).</div>
+</div>
+
 <div class="alert-box alert-red" style="margin-bottom:20px;">
   <div class="alert-title">All data exports must use a lossless file format</div>
   <div class="alert-body">
@@ -376,11 +384,11 @@ table.ref tr:last-child td { border-bottom: none; }
 </div>
 
 <div class="alert-box alert-amber" style="margin-bottom:20px;">
-  <div class="alert-title">Naming convention questions — contact the Data team</div>
+  <div class="alert-title">Naming convention questions: contact the Data team</div>
   <div class="alert-body">
     If you are unsure how to name a file, which subfolder to use, or whether your
     device export matches the convention, do not guess. Contact the Data and QA
-    Coordinator (Aavash Ghising) before ingesting. It is easier to name files
+    Coordinator before ingesting. It is easier to name files
     correctly at ingest than to rename them after the manifest has been generated.
   </div>
 </div>
@@ -413,11 +421,6 @@ table.ref tr:last-child td { border-bottom: none; }
     <div class="alert-body">MDT = UTC &minus;6 hours. Evening sessions roll to the <strong>next calendar day</strong> in UTC.<br>
     Data collected 8 pm April 12 &rarr; filename date is <span class="mono-inline">20260413</span>, not 20260412.</div>
   </div>
-  <div class="alert-box alert-red">
-    <div class="alert-title"><strong>Critical:</strong> raw files are NEVER renamed at ingest</div>
-    <div class="alert-body">Device-generated files must be ingested exactly as produced. This convention applies to <strong>derivative and processed outputs only</strong> (detection results, summaries, exports). Renaming raw files breaks SHA-256 checksum verification.<br>
-    <span class="mono-inline">Keep as-is: &nbsp;SM4_20260412_023012.wav &nbsp;|&nbsp; 20260412_023012.WAV &nbsp;|&nbsp; IMG1.FIT &nbsp;|&nbsp; DS000001.mp4</span></div>
-  </div>
 </section>
 
 <section class="section" aria-labelledby="section-2-title">
@@ -442,7 +445,13 @@ table.ref tr:last-child td { border-bottom: none; }
         </td>
         <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw</span></td>
       </tr>
-      <tr><td><span class="code-pill">SQM</span> &nbsp;Sky Quality Meter</td><td class="mono-cell">20260413_I_SQM_01-SD_0200.csv</td><td><span class="code-pill">derivative</span></td></tr>
+      <tr>
+        <td><span class="code-pill">SQM</span> &nbsp;Sky Quality Meter</td>
+        <td class="mono-cell">20260413_I_SQM_01-SD_0200.csv
+          <span class="pending">output pending</span>
+        </td>
+        <td><span class="code-pill">derivative</span></td>
+      </tr>
       <tr>
         <td><span class="code-pill">HOBO</span> &nbsp;Lux/Temp Logger</td>
         <td class="mono-cell">20260413_I_HOBO_03_0200.csv<br>
@@ -465,18 +474,14 @@ table.ref tr:last-child td { border-bottom: none; }
         <td><span class="code-pill">SPEC</span> &nbsp;Spectral distribution</td>
         <td class="mono-cell">
           2026_I_SPEC_01_01_4923K_SpectralDistribution.png<br>
-          <span style="font-size:10px;color:var(--text3);">
-            device generates as JPG, must be re-exported or converted to PNG,
-            paired with each measurement CSV
-          </span>
         </td>
         <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw</span></td>
       </tr>
       <tr>
         <td><span class="code-pill">SPEC</span> &nbsp;Dark frame</td>
-        <td class="mono-cell">2026_I_SPEC_01_dark_01.png<br>
+        <td class="mono-cell">20260413_I_SPEC_01_0200_dark.png<br>
           <span style="font-size:10px;color:var(--text3);">
-            PNG required · one per session · export before each measurement
+            named manually at export following SOP 13 · PNG required · one per session · capture before each measurement
           </span>
         </td>
         <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw</span></td>
@@ -490,17 +495,41 @@ table.ref tr:last-child td { border-bottom: none; }
         </td>
         <td><span class="code-pill">derivative</span></td>
       </tr>
-      <tr><td><span class="code-pill">THERMAL</span> &nbsp;Thermal Binoculars</td><td class="mono-cell">20260413_I_THERMAL_01_0200.mp4</td><td><span class="code-pill">derivative</span></td></tr>
-      <tr><td><span class="code-pill">LUX</span> &nbsp;Handheld Lux Meter</td><td class="mono-cell">20260413_I_LUX_01_0200.csv</td><td><span class="code-pill">derivative</span></td></tr>
+      <tr>
+        <td><span class="code-pill">THERMAL</span> &nbsp;Thermal Binoculars</td>
+        <td class="mono-cell">20260413_I_THERMAL_01_0200.mp4
+          <span class="pending">output pending</span>
+        </td>
+        <td><span class="code-pill">derivative</span></td>
+      </tr>
+      <tr>
+        <td><span class="code-pill">LUX</span> &nbsp;Handheld Lux Meter</td>
+        <td class="mono-cell">20260413_I_LUX_01_0200.csv
+          <span class="pending">output pending</span>
+        </td>
+        <td><span class="code-pill">derivative</span></td>
+      </tr>
       <tr>
         <td><span class="code-pill">ALLSKY</span> &nbsp;All-sky Camera</td>
         <td class="mono-cell">20260413_I_ALLSKY_01_0200.png
-          <span class="pending">format TBD</span>
+          <span class="pending">output pending</span>
         </td>
         <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw</span></td>
       </tr>
-      <tr><td><span class="code-pill">LLV</span> &nbsp;Sony ZV-1</td><td class="mono-cell">20260413_I_LLV_01_0200.mp4</td><td><span class="code-pill">derivative</span></td></tr>
-      <tr><td><span class="code-pill">WEATHER</span> &nbsp;Davis Vantage Pro2</td><td class="mono-cell">20260413_I_WEATHER_01_0200.csv</td><td><span class="code-pill">derivative</span></td></tr>
+      <tr>
+        <td><span class="code-pill">LLV</span> &nbsp;Sony ZV-1</td>
+        <td class="mono-cell">20260413_I_LLV_01_0200.mp4
+          <span class="pending">output pending</span>
+        </td>
+        <td><span class="code-pill">derivative</span></td>
+      </tr>
+      <tr>
+        <td><span class="code-pill">WEATHER</span> &nbsp;Davis Vantage Pro2</td>
+        <td class="mono-cell">20260413_I_WEATHER_01_0200.csv
+          <span class="pending">output pending</span>
+        </td>
+        <td><span class="code-pill">derivative</span></td>
+      </tr>
     </tbody>
   </table>
 </section>
@@ -554,7 +583,8 @@ table.ref tr:last-child td { border-bottom: none; }
     <h2 id="section-4-title" class="section-title">4. Google Drive folder structure</h2>
     <div class="folder-box">
       <span class="dir">LIGHT_ALAN-W_2026/</span><br>
-      &nbsp;&nbsp;_admin/ &nbsp;_calibration/ &nbsp;_scripts/<br>
+      &nbsp;&nbsp;_admin/ &nbsp;_calibration/ &nbsp;_scripts/ &nbsp;_to_rename/<br>
+      &nbsp;&nbsp;<span class="note">← _to_rename: SOP 13 correction folder for naming errors</span><br>
       &nbsp;&nbsp;<span class="dir">YYYYMMDD_I/</span> <span class="note">← one per night</span><br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SM4/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_AM/<br>
@@ -582,6 +612,7 @@ table.ref tr:last-child td { border-bottom: none; }
 
 <footer class="footer">
   <span>Version 1.1, April 2026, LIGHT Team, Weber State University</span>
+  <span>Per SOP 13: keep this sheet accessible during ingest and processing</span>
   <span>Architected with Claude (Anthropic) + Cursor AI, Logan Jones</span>
 </footer>
 
