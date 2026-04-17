@@ -443,6 +443,26 @@ table.ref tr:last-child td { border-bottom: none; }
   table.ref th[style] {
     width: auto !important;
   }
+  #section-3-title + table.ref {
+    table-layout: auto;
+    width: 100%;
+    min-width: unset;
+  }
+  #section-3-title + table.ref th,
+  #section-3-title + table.ref td {
+    padding: 6px 8px;
+    white-space: nowrap;
+    width: auto;
+  }
+  #section-3-title + table.ref th:first-child,
+  #section-3-title + table.ref td:first-child {
+    white-space: normal;
+    min-width: 0;
+  }
+  #section-3-title + table.ref .mono-cell {
+    font-size: 9.5px;
+    white-space: nowrap;
+  }
   .alert-box {
     padding: 12px 14px;
     font-size: 13px;
