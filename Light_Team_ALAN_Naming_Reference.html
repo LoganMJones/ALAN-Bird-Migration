@@ -420,6 +420,29 @@ table.ref tr:last-child td { border-bottom: none; }
   .mono-cell {
     font-size: 10px;
   }
+  table.ref {
+    table-layout: auto;
+    width: 100%;
+    min-width: unset;
+  }
+  table.ref th,
+  table.ref td {
+    padding: 6px 8px;
+    white-space: nowrap;
+    width: auto;
+  }
+  table.ref th:first-child,
+  table.ref td:first-child {
+    white-space: normal;
+    min-width: 0;
+  }
+  table.ref .mono-cell {
+    font-size: 9.5px;
+    white-space: nowrap;
+  }
+  table.ref th[style] {
+    width: auto !important;
+  }
   .alert-box {
     padding: 12px 14px;
     font-size: 13px;
