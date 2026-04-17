@@ -142,6 +142,7 @@ YYYYMMDD_Site_SensorType_DeviceID_StartTimeUTC.ext
 | Code | Sensor | Device IDs |
 |------|--------|------------|
 | `SM4` | Wildlife Acoustics SongMeter 4 | `01` |
+| `SM5` | Wildlife Acoustics SongMeter 5 | `01` |
 | `AM` | AudioMoth x2 | `N`, `S` (pole tag IDs - confirm with Aavash) |
 | `SQM` | Sky Quality Meter SD card | `01-SD` |
 | `HOBO` | HOBO MX2202 lux/temp logger x6 | `01`-`06` |
@@ -156,6 +157,7 @@ YYYYMMDD_Site_SensorType_DeviceID_StartTimeUTC.ext
 
 ```text
 20260413_I_SM4_01_0230_nfc-detections.csv
+20260413_I_SM5_01_0230_nfc-detections.csv
 20260413_I_AM_N_0200.wav
 20260413_I_SQM_01-SD_0200.csv
 20260413_I_HOBO_03_0200.csv
@@ -203,6 +205,7 @@ LIGHT_ALAN-W_2026/
   _to_rename/       <- SOP 13 correction folder for naming errors
   YYYYMMDD_I/       <- one per collection night (local Utah date)
     YYYYMMDD_I_SM4/
+    YYYYMMDD_I_SM5/
     YYYYMMDD_I_AM/
       N/            <- AudioMoth north pole
       S/            <- AudioMoth south pole

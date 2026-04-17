@@ -11,7 +11,7 @@
 
 const DRIVE_CONFIG = {
   HOBO_COUNT: 6,
-  SENSOR_SUFFIXES: ['SM4', 'SQM', 'SPEC', 'THERMAL', 'LUX', 'ALLSKY', 'LLV', 'WEATHER', 'ADMIN'],
+  SENSOR_SUFFIXES: ['SM4', 'SM5', 'SQM', 'SPEC', 'THERMAL', 'LUX', 'ALLSKY', 'LLV', 'WEATHER', 'ADMIN'],
   AM_SUBFOLDERS: ['N', 'S'],
   CALIBRATION_SUBFOLDERS: ['HOBO', 'SQM', 'baseline_readings'],
   PERMANENT_FOLDERS: ['_admin', '_scripts']

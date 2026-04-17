@@ -93,6 +93,25 @@ body {
   outline-offset: 2px;
 }
 
+.mobile-print-fab {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  z-index: 100;
+}
+
 .doc-header {
   border-bottom: 3px solid var(--navy);
   padding-bottom: 14px;
@@ -135,29 +154,40 @@ body {
 .token-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: auto auto;
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
   margin-bottom: 8px;
 }
+.token-pair { display: contents; }
 .token-cell {
   padding: 8px 10px;
   border-right: 1px solid var(--border);
   text-align: center;
 }
-.token-cell:last-child { border-right: none; }
+.token-pair:last-child .token-cell { border-right: none; }
+.token-pair .token-cell.header { border-bottom: 1px solid var(--border); }
+.token-pair:nth-child(1) .token-cell { grid-column: 1; }
+.token-pair:nth-child(2) .token-cell { grid-column: 2; }
+.token-pair:nth-child(3) .token-cell { grid-column: 3; }
+.token-pair:nth-child(4) .token-cell { grid-column: 4; }
+.token-pair:nth-child(5) .token-cell { grid-column: 5; }
+.token-pair:nth-child(6) .token-cell { grid-column: 6; }
 .token-cell.header {
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 500;
   color: #fff;
   padding: 7px 6px;
+  grid-row: 1;
 }
 .token-cell.body {
   font-size: 12px;
   color: var(--text2);
   line-height: 1.45;
   background: var(--gray);
+  grid-row: 2;
 }
 .tok-date { background: #0d47a1; }
 .tok-site { background: #00695c; }
@@ -332,9 +362,111 @@ table.ref tr:last-child td { border-bottom: none; }
 }
 
 @media (max-width: 600px) {
-  .token-row { grid-template-columns: repeat(3, 1fr); }
-  .two-col { grid-template-columns: 1fr; }
+  .token-row {
+    grid-template-columns: 1fr;
+    border-radius: 6px;
+  }
+  .token-pair {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .token-pair:last-child {
+    border-bottom: none;
+  }
+  .token-cell {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 14px;
+  }
+  .token-cell:last-child {
+    border-bottom: none;
+  }
+  .token-cell.header {
+    font-size: 12px;
+    min-width: 110px;
+    flex-shrink: 0;
+    border-radius: 0;
+    padding: 10px 14px;
+  }
+  .token-cell.body {
+    flex: 1;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .section:has(table.ref) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.ref {
+    min-width: 520px;
+  }
+  table.ref td,
+  table.ref th {
+    white-space: nowrap;
+  }
+  .mono-cell {
+    font-size: 10px;
+  }
+  .alert-box {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .alert-title {
+    font-size: 13px;
+  }
+  .alert-body {
+    font-size: 12px;
+  }
+  .mono-inline {
+    font-size: 10px;
+    word-break: break-all;
+  }
+  .folder-box {
+    font-size: 11px;
+    line-height: 1.8;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: pre;
+  }
+  .two-col {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .print-bar {
+    display: none;
+  }
+  .mobile-print-fab {
+    display: flex;
+  }
+  body {
+    padding: 16px 14px;
+    font-size: 13px;
+  }
+  .doc-title {
+    font-size: 17px;
+  }
+  .doc-subtitle {
+    font-size: 12px;
+  }
+  .section-title {
+    font-size: 11px;
+  }
+  .code-pill {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .pending {
+    font-size: 10px;
+  }
   .doc-meta { flex-direction: column; gap: 4px; }
+}
+
+@media print {
+  .mobile-print-fab { display: none !important; }
 }
 </style>
 </head>
@@ -397,20 +529,30 @@ table.ref tr:last-child td { border-bottom: none; }
 <section class="section" aria-labelledby="section-1-title">
   <h2 id="section-1-title" class="section-title">1. Standard naming convention: derivative files only</h2>
   <div class="token-row">
-    <div class="token-cell header tok-date">YYYYMMDD</div>
-    <div class="token-cell header tok-site">Site</div>
-    <div class="token-cell header tok-sensor">SensorType</div>
-    <div class="token-cell header tok-device">DeviceID</div>
-    <div class="token-cell header tok-time">StartTimeUTC</div>
-    <div class="token-cell header tok-ext">.ext</div>
-  </div>
-  <div class="token-row">
-    <div class="token-cell body">Date in UTC<br><span class="mono-inline">20260413</span></div>
-    <div class="token-cell body"><span class="mono-inline">I</span> = Impact<br><span class="mono-inline">C</span> = Control<br><em>2026: I only</em></div>
-    <div class="token-cell body">Standard code<br>(see table below)</div>
-    <div class="token-cell body">Specific unit (no sensor prefix)<br><span class="mono-inline">03</span><br><span class="mono-inline">01</span></div>
-    <div class="token-cell body">HHMM in UTC<br>8pm MDT = <span class="mono-inline">0200</span><br>9pm = <span class="mono-inline">0300</span><br>10pm = <span class="mono-inline">0400</span></div>
-    <div class="token-cell body">Lowercase<br><span class="mono-inline">.csv .wav</span><br><span class="mono-inline">.fit .mp4</span></div>
+    <div class="token-pair">
+      <div class="token-cell header tok-date">YYYYMMDD</div>
+      <div class="token-cell body">Date in UTC<br><span class="mono-inline">20260413</span></div>
+    </div>
+    <div class="token-pair">
+      <div class="token-cell header tok-site">Site</div>
+      <div class="token-cell body"><span class="mono-inline">I</span> = Impact<br><span class="mono-inline">C</span> = Control<br><em>2026: I only</em></div>
+    </div>
+    <div class="token-pair">
+      <div class="token-cell header tok-sensor">SensorType</div>
+      <div class="token-cell body">Standard code<br>(see table below)</div>
+    </div>
+    <div class="token-pair">
+      <div class="token-cell header tok-device">DeviceID</div>
+      <div class="token-cell body">Specific unit (no sensor prefix)<br><span class="mono-inline">03</span><br><span class="mono-inline">01</span></div>
+    </div>
+    <div class="token-pair">
+      <div class="token-cell header tok-time">StartTimeUTC</div>
+      <div class="token-cell body">HHMM in UTC<br>8pm MDT = <span class="mono-inline">0200</span><br>9pm = <span class="mono-inline">0300</span><br>10pm = <span class="mono-inline">0400</span></div>
+    </div>
+    <div class="token-pair">
+      <div class="token-cell header tok-ext">.ext</div>
+      <div class="token-cell body">Lowercase<br><span class="mono-inline">.csv .wav</span><br><span class="mono-inline">.fit .mp4</span></div>
+    </div>
   </div>
 </section>
 
@@ -436,6 +578,11 @@ table.ref tr:last-child td { border-bottom: none; }
     </thead>
     <tbody>
       <tr><td><span class="code-pill">SM4</span> &nbsp;SongMeter 4</td><td class="mono-cell">20260413_I_SM4_01_0230_nfc-detections.csv</td><td><span class="code-pill">derivative</span></td></tr>
+      <tr>
+        <td><span class="code-pill">SM5</span> &nbsp;SongMeter 5</td>
+        <td class="mono-cell">20260413_I_SM5_01_0230_nfc-detections.csv</td>
+        <td><span class="code-pill">derivative</span></td>
+      </tr>
       <tr>
         <td><span class="code-pill">AM</span> &nbsp;AudioMoth</td>
         <td class="mono-cell">20260412_023012.WAV<br>
@@ -566,6 +713,7 @@ table.ref tr:last-child td { border-bottom: none; }
       <thead><tr><th scope="col">Code</th><th scope="col">Device IDs</th></tr></thead>
       <tbody>
         <tr><td><span class="code-pill">SM4</span></td><td class="mono-cell">01</td></tr>
+        <tr><td><span class="code-pill">SM5</span></td><td class="mono-cell">01</td></tr>
         <tr><td><span class="code-pill">AM</span></td><td class="mono-cell">N, S</td></tr>
         <tr><td><span class="code-pill">SQM</span></td><td class="mono-cell">01-SD, 02-ETH</td></tr>
         <tr><td><span class="code-pill">HOBO</span></td><td class="mono-cell">01 through 06</td></tr>
@@ -584,9 +732,9 @@ table.ref tr:last-child td { border-bottom: none; }
     <div class="folder-box">
       <span class="dir">LIGHT_ALAN-W_2026/</span><br>
       &nbsp;&nbsp;_admin/ &nbsp;_calibration/ &nbsp;_scripts/ &nbsp;_to_rename/<br>
-      &nbsp;&nbsp;<span class="note">← _to_rename: SOP 13 correction folder for naming errors</span><br>
       &nbsp;&nbsp;<span class="dir">YYYYMMDD_I/</span> <span class="note">← one per night</span><br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SM4/<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SM5/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_AM/<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N/ &nbsp;S/ <span class="note">← by folder</span><br>
       &nbsp;&nbsp;&nbsp;&nbsp;YYYYMMDD_I_SQM/<br>
@@ -624,6 +772,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<button class="mobile-print-fab" onclick="window.print()" aria-label="Print this sheet">&#128438;</button>
 
 </body>
 </html>

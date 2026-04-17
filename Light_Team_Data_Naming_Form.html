@@ -307,6 +307,16 @@ const TEAMS = {
         {t:'Spot-check: opened 1 file, audio plays and is clean', h:''},
         {t:'SM4 SD card retained until next-day verification', h:'', tag:'crit'},
       ]},
+      {
+        name: 'SongMeter 5 (SM5-01)',
+        items: [
+          {t: 'SM5 SD card retrieved from field station', h: ''},
+          {t: 'Raw .wav files copied to YYYYMMDD_I_SM5/', h: 'Do NOT rename — keep device-generated filename'},
+          {t: 'File count confirmed for session length', h: 'Flag any shortfall to Aavash immediately'},
+          {t: 'Spot-check: opened 1 file, audio plays and is clean', h: ''},
+          {t: 'SM5 SD card retained until next-day verification', h: '', tag: 'crit'},
+        ]
+      },
       { name:'AudioMoth (AM-N & AM-S)', items:[
         {t:'AM-N raw .WAV files copied to …/AM/N/ subfolder', h:'YYYYMMDD_hhmmss.WAV — never rename'},
         {t:'AM-S raw .WAV files copied to …/AM/S/ subfolder', h:'Device ID confirmed via pole tag (N = north, S = south)'},
@@ -654,6 +664,13 @@ const MANUAL = {
       {t:'File count: 1–2 .wav per night',h:''},
       {t:'Spot-check 1 file — audio clean',h:''},
       {t:'SD card retained until verification',h:''},
+    ]},
+    {code: 'SM5', name: 'SongMeter 5', items: [
+      {t: 'SM5 SD card retrieved', h: ''},
+      {t: 'Raw .wav files copied to SM5/ subfolder', h: 'Do NOT rename'},
+      {t: 'File count confirmed for session length', h: ''},
+      {t: 'Spot-check 1 file — audio clean', h: ''},
+      {t: 'SD card retained until verification', h: ''},
     ]},
     {code:'AM', name:'AudioMoth ×2', items:[
       {t:'AM-N .WAV files → AM/N/ subfolder',h:'Never rename — pole tag N = north'},

@@ -496,6 +496,12 @@ function addAcousticsSectionItems_(form) {
   addChecklistItem_(form, 'Spot-check: 1 file opened, audio plays, timestamps correct', true);
   addChecklistItem_(form, 'SD card retained until next-day verification', true);
 
+  form.addSectionHeaderItem().setTitle('SM5');
+  addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM5/ - not renamed', true);
+  addChecklistItem_(form, 'File count confirmed for session length', true);
+  addChecklistItem_(form, 'Spot-check: 1 file opened, audio plays, timestamps correct', true);
+  addChecklistItem_(form, 'SD card retained until next-day verification', true);
+
   form.addSectionHeaderItem().setTitle('AudioMoth (AM-N, AM-S)');
   addChecklistItem_(form, 'AM-N raw .WAV files in YYYYMMDD_I_AM/N/ subfolder', true);
   addChecklistItem_(form, 'AM-S raw .WAV files in YYYYMMDD_I_AM/S/ subfolder', true);
@@ -621,6 +627,7 @@ function addDataQaSectionItems_(form) {
 
   form.addSectionHeaderItem().setTitle('Spot-check QA');
   addChecklistItem_(form, 'SM4: 1 .wav file opened and verified', true);
+  addChecklistItem_(form, 'SM5: 1 .wav file opened and verified', true);
   addChecklistItem_(form, 'AudioMoth: 1 file per unit (N and S) opened and verified', true);
   addChecklistItem_(form, 'HOBO: all 6 CSVs opened, timestamps and values plausible', true);
   addChecklistItem_(form, 'SQM: CSV contains full overnight record, no gaps', true);
