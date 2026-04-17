@@ -98,13 +98,15 @@ body {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  padding: 10px 14px;
+  border-radius: 999px;
   background: var(--navy);
   color: #fff;
   border: none;
-  font-size: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -394,8 +396,15 @@ table.ref tr:last-child td { border-bottom: none; }
   }
   .token-cell.body {
     flex: 1;
+    min-width: 0;
+    display: block;
     font-size: 12px;
     line-height: 1.5;
+  }
+  .token-cell.body .mono-inline {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
   }
   .section:has(table.ref) {
     overflow-x: auto;
@@ -443,7 +452,7 @@ table.ref tr:last-child td { border-bottom: none; }
     display: flex;
   }
   body {
-    padding: 16px 14px;
+    padding: 16px 14px 84px;
     font-size: 13px;
   }
   .doc-title {
@@ -773,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<button class="mobile-print-fab" onclick="window.print()" aria-label="Print this sheet">&#128438;</button>
+<button class="mobile-print-fab" onclick="window.print()" aria-label="Print this sheet">Print</button>
 
 </body>
 </html>
