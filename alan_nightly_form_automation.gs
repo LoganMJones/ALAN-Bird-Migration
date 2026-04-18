@@ -761,7 +761,9 @@ function addAcousticsSectionItems_(form) {
     true,
     'Pre-season configuration required. Open SongMeter app, confirm prefix is set ' +
     'to I_SM4_01. Device generates I_SM4_01_YYYYMMDD_HHMMSS.wav automatically. ' +
-    'If prefix is wrong, files will not be self-describing  contact Data and QA Coordinator.'
+    'Note: raw file order is Site_Sensor_Device_Date, opposite of SOP 13, because ' +
+    'the device appends the date after the prefix. This is expected, not an error. ' +
+    'Derivative files follow SOP 13 date-first order as normal.'
   );
   addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM4/ - not renamed', true);
   addChecklistItem_(form, 'File count confirmed (1-2 .wav files expected per night)', true);
@@ -774,7 +776,9 @@ function addAcousticsSectionItems_(form) {
     'SM5 filename prefix verified as I_SM5_01 in device settings',
     true,
     'Pre-season configuration required. Open SongMeter app, confirm prefix is set ' +
-    'to I_SM5_01. Device generates I_SM5_01_YYYYMMDD_HHMMSS.wav automatically.'
+    'to I_SM5_01. Device generates I_SM5_01_YYYYMMDD_HHMMSS.wav automatically. ' +
+    'Note: raw file order is Site_Sensor_Device_Date, opposite of SOP 13, because ' +
+    'the device appends the date after the prefix. This is expected, not an error.'
   );
   addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM5/ - not renamed', true);
   addChecklistItem_(form, 'File count confirmed for session length', true);

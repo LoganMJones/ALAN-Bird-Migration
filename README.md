@@ -108,7 +108,7 @@ Each team uploads raw files to their assigned subfolders as they complete ingest
 ### After ingest (each team lead)
 
 Open the Google Form URL and complete the submission checklist for your team. The form routes you to your team's specific sensor checklist. All items must be confirmed before the submit button activates.
-- The Nightly Field Lead reviews ingest status and signs off before departure —
+- The Nightly Field Lead reviews ingest status and signs off before departure,
   confirms primary copy complete, manifest generated, secondary backup complete,
   spot-check verified, media retained, and Field Log filed (SOP 12 step 10)
 
@@ -150,11 +150,17 @@ makes every raw audio file self-describing for the entire season.
 | AudioMoth N | `I_AM_N` (if supported) | `I_AM_N_20260412_023012.WAV` |
 | AudioMoth S | `I_AM_S` (if supported) | `I_AM_S_20260412_023012.WAV` |
 
+> **Note on filename order:** SOP 13 requires date first (`YYYYMMDD_Site_SensorType_DeviceID`),
+> but Wildlife Acoustics devices append the date after the prefix. Raw SM4 and SM5 files
+> will therefore read `I_SM4_01_20260413_023012.wav` rather than `20260413_I_SM4_01_023012.wav`.
+> This is a device constraint, not a naming error. Derivative files (NFC detection output)
+> follow SOP 13 date-first order as normal: `20260413_I_SM4_01_0230_nfc-detections.csv`.
+
 Configure in the SongMeter app under device settings before first deployment.
 AudioMoth prefix support is pending confirmation from the Acoustics team lead
 (Davis Swanson). If not supported, AudioMoth attribution remains by subfolder only.
 
-Raw files are never renamed after configuration — the prefix is set in the device
+Raw files are never renamed after configuration, the prefix is set in the device
 and generates automatically for every recording.
 
 ### Sensor codes and device IDs
@@ -268,7 +274,7 @@ Each spectrometer session produces three files:
 | File | Format | Subfolder | Notes |
 |------|--------|-----------|-------|
 | Measurement data | CSV | `SPEC/raw/` | Device-generated, never renamed |
-| Spectral distribution image | PNG | `SPEC/raw/` | Device exports JPG — must re-export as PNG |
+| Spectral distribution image | PNG | `SPEC/raw/` | Device exports JPG must re-export as PNG |
 | Screen capture | PNG | `SPEC/screencap/` | Manual export, named per SOP 13 |
 | Dark frame | PNG | `SPEC/dark/` | One per session, captured before measurement |
 
@@ -390,7 +396,7 @@ These items are flagged in the form and naming reference but require confirmatio
 - Email delivery has no retry mechanism. Check the Apps Script execution log if an expected email does not arrive.
 - The SHA-256 manifest script (Task 3) has not been built and must be completed before April 12.
 - SOP 12 defines QA as qualitative spot-check verification only. No formal
-  pass/fail criteria exist — verify readability, correct attribution, and
+  pass/fail criteria exist: verify readability, correct attribution, and
   plausible timestamps and values.
 
 ---

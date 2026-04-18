@@ -800,7 +800,16 @@ table.ref tr:last-child td { border-bottom: none; }
       <strong>AudioMoth:</strong> custom prefix support pending confirmation from
       the Acoustics team. If supported, set to
       <span class="mono-inline">I_AM_N</span> and <span class="mono-inline">I_AM_S</span>
-      respectively. If not supported, attribution remains by subfolder only.<br><br>
+      respectively. If not supported, attribution remains by subfolder only.
+      <br><br>
+      <strong>Note on prefix order:</strong> SOP 13 requires date first
+      (<span class="mono-inline">YYYYMMDD_I_SM4_01</span>), but Wildlife Acoustics
+      devices append the date after the prefix, the date cannot be placed first.
+      Raw SM4 and SM5 files will therefore have the order
+      <span class="mono-inline">I_SM4_01_YYYYMMDD_HHMMSS.wav</span> rather than
+      <span class="mono-inline">YYYYMMDD_I_SM4_01_HHMMSS.wav</span>. This is a
+      device constraint, not a naming error. Derivative files follow SOP 13
+      date-first order as normal.<br><br>
       Raw files are never renamed after configuration. The prefix is set once
       in the device and generates automatically for every recording.
     </div>

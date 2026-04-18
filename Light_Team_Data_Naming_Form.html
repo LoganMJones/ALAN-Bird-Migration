@@ -303,7 +303,7 @@ const TEAMS = {
       { name:'SongMeter 4 (SM4-01)', items:[
         {
           t: 'SM4 filename prefix verified as I_SM4_01 in device settings',
-          h: 'Pre-season check. Prefix set once in SongMeter app — generates I_SM4_01_YYYYMMDD_HHMMSS.wav automatically.',
+          h: 'Pre-season check. Generates I_SM4_01_YYYYMMDD_HHMMSS.wav. Raw order is Site_Sensor_Device_Date — opposite of SOP 13 due to device constraint. Expected, not an error.',
           tag: 'crit'
         },
         {t:'SM4 SD card retrieved from field station', h:''},
@@ -317,7 +317,7 @@ const TEAMS = {
         items: [
           {
             t: 'SM5 filename prefix verified as I_SM5_01 in device settings',
-            h: 'Pre-season check. Prefix set once in SongMeter app — generates I_SM5_01_YYYYMMDD_HHMMSS.wav automatically.',
+            h: 'Pre-season check. Generates I_SM5_01_YYYYMMDD_HHMMSS.wav. Raw order is Site_Sensor_Device_Date, opposite of SOP 13 due to device constraint. Expected, not an error.',
             tag: 'crit'
           },
           {t: 'SM5 SD card retrieved from field station', h: ''},
