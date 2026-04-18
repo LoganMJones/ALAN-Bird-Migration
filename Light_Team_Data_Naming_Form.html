@@ -301,6 +301,11 @@ const TEAMS = {
     lead:'Davis Swanson',
     groups: [
       { name:'SongMeter 4 (SM4-01)', items:[
+        {
+          t: 'SM4 filename prefix verified as I_SM4_01 in device settings',
+          h: 'Pre-season check. Prefix set once in SongMeter app — generates I_SM4_01_YYYYMMDD_HHMMSS.wav automatically.',
+          tag: 'crit'
+        },
         {t:'SM4 SD card retrieved from field station', h:''},
         {t:'Raw .wav files copied to 20260412_I_SM4/', h:'Do NOT rename — keep PREFIX_YYYYMMDD_HHMMSS.wav'},
         {t:'File count: 1–2 .wav files expected per night', h:'Flag shortfall to Aavash immediately'},
@@ -310,6 +315,11 @@ const TEAMS = {
       {
         name: 'SongMeter 5 (SM5-01)',
         items: [
+          {
+            t: 'SM5 filename prefix verified as I_SM5_01 in device settings',
+            h: 'Pre-season check. Prefix set once in SongMeter app — generates I_SM5_01_YYYYMMDD_HHMMSS.wav automatically.',
+            tag: 'crit'
+          },
           {t: 'SM5 SD card retrieved from field station', h: ''},
           {t: 'Raw .wav files copied to YYYYMMDD_I_SM5/', h: 'Do NOT rename — keep device-generated filename'},
           {t: 'File count confirmed for session length', h: 'Flag any shortfall to Aavash immediately'},
@@ -322,6 +332,11 @@ const TEAMS = {
         {t:'AM-S raw .WAV files copied to …/AM/S/ subfolder', h:'Device ID confirmed via pole tag (N = north, S = south)'},
         {t:'Spot-check: opened 1 file per unit', h:''},
         {t:'AudioMoth media retained until next-day verification', h:'', tag:'crit'},
+        {
+          t: 'AudioMoth custom prefix configured if firmware supports it',
+          h: 'If supported: I_AM_N for north unit, I_AM_S for south unit. If not supported, attribution by subfolder only.',
+          tag: 'warn'
+        },
       ]},
       { name:'Acoustic Processing', items:[
         {t:'NFC detection pipeline run on SM4 files (if processing night)', h:'Document software version + parameters'},
@@ -659,6 +674,7 @@ function submitNight(){
 const MANUAL = {
   'acoustics-m': [
     {code:'SM4', name:'SongMeter 4', items:[
+      {t: 'SM4 prefix verified as I_SM4_01', h: 'Pre-season — set once in SongMeter app'},
       {t:'SM4 SD card retrieved',h:''},
       {t:'Raw .wav files copied to SM4/ subfolder',h:'Do NOT rename'},
       {t:'File count: 1–2 .wav per night',h:''},
@@ -666,6 +682,7 @@ const MANUAL = {
       {t:'SD card retained until verification',h:''},
     ]},
     {code: 'SM5', name: 'SongMeter 5', items: [
+      {t: 'SM5 prefix verified as I_SM5_01', h: 'Pre-season — set once in SongMeter app'},
       {t: 'SM5 SD card retrieved', h: ''},
       {t: 'Raw .wav files copied to SM5/ subfolder', h: 'Do NOT rename'},
       {t: 'File count confirmed for session length', h: ''},

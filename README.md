@@ -137,6 +137,26 @@ YYYYMMDD_Site_SensorType_DeviceID_StartTimeUTC.ext
 
 **Time zone rule:** MDT = UTC-6. Data collected at 8pm April 12 -> filename date is `20260413`.
 
+### Pre-season device prefix configuration
+
+Wildlife Acoustics devices (SM4, SM5) support a configurable filename prefix that
+is set once in the SongMeter app before the first deployment. Setting this correctly
+makes every raw audio file self-describing for the entire season.
+
+| Device | Prefix to set | Output filename |
+|--------|--------------|-----------------|
+| SM4 | `I_SM4_01` | `I_SM4_01_20260412_023012.wav` |
+| SM5 | `I_SM5_01` | `I_SM5_01_20260412_023012.wav` |
+| AudioMoth N | `I_AM_N` (if supported) | `I_AM_N_20260412_023012.WAV` |
+| AudioMoth S | `I_AM_S` (if supported) | `I_AM_S_20260412_023012.WAV` |
+
+Configure in the SongMeter app under device settings before first deployment.
+AudioMoth prefix support is pending confirmation from the Acoustics team lead
+(Davis Swanson). If not supported, AudioMoth attribution remains by subfolder only.
+
+Raw files are never renamed after configuration — the prefix is set in the device
+and generates automatically for every recording.
+
 ### Sensor codes and device IDs
 
 | Code | Sensor | Device IDs |
@@ -184,7 +204,7 @@ as-is, document in the Field Log and manifest, and flag to the Data and QA Coord
 ### Raw files - keep exactly as produced by the device
 
 ```text
-SM4_20260412_023012.wav
+I_SM4_01_20260412_023012.wav
 20260412_023012.WAV
 IMG1.FIT
 DS000001.mp4
@@ -349,6 +369,7 @@ These items are flagged in the form and naming reference but require confirmatio
 | HOBO logging interval - work plan says 60s, device inventory says 5min | Neisha Erickson |
 | Weather station export procedure | FM installation + WeatherLink access |
 | SQM Ethernet model (02-ETH) installation | FM roof approval |
+| AudioMoth custom filename prefix support | Davis Swanson / Acoustics team |
 
 ---
 

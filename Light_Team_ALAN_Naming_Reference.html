@@ -541,7 +541,7 @@ table.ref tr:last-child td { border-bottom: none; }
 <div class="alert-box alert-red">
   <div class="alert-title"><strong>Critical:</strong> raw files are NEVER renamed at ingest</div>
   <div class="alert-body">Device-generated files must be ingested exactly as produced. This convention applies to <strong>derivative and processed outputs only</strong> (detection results, summaries, exports). Renaming raw files breaks SHA-256 checksum verification.<br>
-  <span class="mono-inline">Keep as-is: &nbsp;SM4_20260412_023012.wav &nbsp;|&nbsp; 20260412_023012.WAV &nbsp;|&nbsp; IMG1.FIT &nbsp;|&nbsp; DS000001.mp4</span><br>If a naming error occurs after ingest: do not delete. Move to
+  <span class="mono-inline">Keep as-is: &nbsp;I_SM4_01_20260412_023012.wav &nbsp;|&nbsp; I_SM5_01_20260412_023012.wav &nbsp;|&nbsp; 20260412_023012.WAV &nbsp;|&nbsp; IMG1.FIT &nbsp;|&nbsp; DS000001.mp4</span><br>If a naming error occurs after ingest: do not delete. Move to
   <span class="mono-inline">_to_rename/</span>, create the correctly named version
   in the correct subfolder, and document both in the Field Log (SOP 13).</div>
 </div>
@@ -631,17 +631,41 @@ table.ref tr:last-child td { border-bottom: none; }
       </tr>
     </thead>
     <tbody>
-      <tr><td><span class="code-pill">SM4</span> &nbsp;SongMeter 4</td><td class="mono-cell">20260413_I_SM4_01_0230_nfc-detections.csv</td><td><span class="code-pill">derivative</span></td></tr>
+      <tr>
+        <td><span class="code-pill">SM4</span> &nbsp;SongMeter 4</td>
+        <td class="mono-cell">
+          I_SM4_01_20260413_023012.wav<br>
+          <span style="font-size:10px;color:var(--text3);">
+            raw · device prefix configured to I_SM4_01 · date and time appended by device
+          </span><br>
+          20260413_I_SM4_01_0230_nfc-detections.csv<br>
+          <span style="font-size:10px;color:var(--text3);">
+            derivative · NFC detection output follows SOP 13
+          </span>
+        </td>
+        <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw + derivative</span></td>
+      </tr>
       <tr>
         <td><span class="code-pill">SM5</span> &nbsp;SongMeter 5</td>
-        <td class="mono-cell">20260413_I_SM5_01_0230_nfc-detections.csv</td>
-        <td><span class="code-pill">derivative</span></td>
+        <td class="mono-cell">
+          I_SM5_01_20260413_023012.wav<br>
+          <span style="font-size:10px;color:var(--text3);">
+            raw · device prefix configured to I_SM5_01 · date and time appended by device
+          </span><br>
+          20260413_I_SM5_01_0230_nfc-detections.csv<br>
+          <span style="font-size:10px;color:var(--text3);">
+            derivative · NFC detection output follows SOP 13
+          </span>
+        </td>
+        <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw + derivative</span></td>
       </tr>
       <tr>
         <td><span class="code-pill">AM</span> &nbsp;AudioMoth</td>
         <td class="mono-cell">20260412_023012.WAV<br>
           <span style="font-size:10px;color:var(--text3);">
-            device-generated, attribution by subfolder (N/ or S/) only
+            device-generated · attribution by subfolder (N/ or S/) only ·
+            custom prefix support pending confirmation
+            <span class="pending">prefix TBD</span>
           </span>
         </td>
         <td><span class="code-pill" style="background:#f1efe8;color:#5f5e5a;">raw</span></td>
@@ -755,6 +779,30 @@ table.ref tr:last-child td { border-bottom: none; }
       <strong>HOBO:</strong> HOBOware generates its own export filename. Place in the correct
       numbered subfolder (<span class="mono-inline">HOBO/01/</span> through
       <span class="mono-inline">HOBO/06/</span>) without renaming.
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="section-prefix-title">
+  <h2 id="section-prefix-title" class="section-title">2c. Pre-season device configuration</h2>
+  <div class="alert-box alert-amber">
+    <div class="alert-title">Configure device filename prefixes before first collection night</div>
+    <div class="alert-body">
+      Wildlife Acoustics devices (SM4, SM5) allow a configurable filename prefix.
+      Setting this correctly makes every raw audio file self-describing without
+      relying on folder context. Configure once per season in the device settings.<br><br>
+      <strong>SM4:</strong> set prefix to <span class="mono-inline">I_SM4_01</span>
+      in the SongMeter app before deployment. Device will generate
+      <span class="mono-inline">I_SM4_01_YYYYMMDD_HHMMSS.wav</span>.<br><br>
+      <strong>SM5:</strong> set prefix to <span class="mono-inline">I_SM5_01</span>.
+      Device will generate
+      <span class="mono-inline">I_SM5_01_YYYYMMDD_HHMMSS.wav</span>.<br><br>
+      <strong>AudioMoth:</strong> custom prefix support pending confirmation from
+      the Acoustics team. If supported, set to
+      <span class="mono-inline">I_AM_N</span> and <span class="mono-inline">I_AM_S</span>
+      respectively. If not supported, attribution remains by subfolder only.<br><br>
+      Raw files are never renamed after configuration. The prefix is set once
+      in the device and generates automatically for every recording.
     </div>
   </div>
 </section>

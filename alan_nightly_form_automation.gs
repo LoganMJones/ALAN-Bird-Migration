@@ -40,11 +40,32 @@
  * Principal Investigator: Dr. John F. Cavitt, Weber State University.
  */
 
+/**
+ * AUDIO EXPORT WEB APP  SETUP
+ * ----------------------------
+ * 1. Set CONFIG.ROOT_FOLDER_ID to the Drive folder ID of LIGHT_ALAN-W_2026/
+ *    (find it in the Drive URL: drive.google.com/drive/folders/THIS_IS_THE_ID)
+ * 2. Click Deploy > New deployment
+ * 3. Select type: Web app
+ * 4. Set Execute as: Me
+ * 5. Set Who has access: Anyone with the link
+ * 6. Click Deploy and copy the web app URL
+ * 7. Share the URL with Dr. Cavitt and team leads
+ *
+ * To re-run manually from the editor, select exportAudioFiles and click Run.
+ * The web app URL stays the same after updates  no need to redeploy for code changes
+ * unless you change the deployment settings.
+ */
+
 const CONFIG = {
   // ⚠ REQUIRED: Replace with your actual email before running buildNightlyFormAndSheet().
   // All admin alerts, submission summaries, and reminder emails go to this address.
   // During testing use your own email. During production set to a data admin.
   ALERT_EMAIL: 'loganjones1@weber.edu',
+  // ⚠ REQUIRED: Replace with the Google Drive folder ID of LIGHT_ALAN-W_2026/
+  // Find it in the Drive URL when viewing the folder:
+  // https://drive.google.com/drive/folders/THIS_PART_IS_THE_ID
+  ROOT_FOLDER_ID: 'YOUR_ROOT_FOLDER_ID_HERE',
   // Demo safety switch: when true, outgoing emails are suppressed and logged.
   // Set to false before production go-live.
   DEMO_MODE: true,
@@ -123,7 +144,7 @@ function buildNightlyFormAndSheet() {
       .addTextItem()
       .setTitle('Submitter name')
       .setHelpText(
-        'Roster sheet is empty — type your full name.'
+        'Roster sheet is empty  type your full name.'
       )
       .setRequired(true);
   }
@@ -319,7 +340,7 @@ function sendEmail_(to, subject, body, context) {
 }
 
 /**
- * MANUAL USE ONLY — do not install as a trigger.
+ * MANUAL USE ONLY  do not install as a trigger.
  * When to use: Safely test submit-side automation and emails against the latest real response.
  * How to run: Select this function in the Apps Script editor dropdown and click Run.
  * Side effects: Replays onFormSubmit logic for the last response row and sends the same emails/updates.
@@ -347,7 +368,7 @@ function testOnFormSubmit() {
 }
 
 /**
- * MANUAL USE ONLY — do not install as a trigger.
+ * MANUAL USE ONLY  do not install as a trigger.
  * When to use: Audit who submitted for a specific collection night before making corrections.
  * How to run: Select this function in the Apps Script editor dropdown and click Run.
  * Side effects: Writes submission details to the Execution Log only.
@@ -413,7 +434,7 @@ function listNightSubmissions_(nightDateKey) {
 }
 
 /**
- * MANUAL USE ONLY — do not install as a trigger.
+ * MANUAL USE ONLY, do not install as a trigger.
  * When to use: Correct Nightly_Summary when a submission was filed under the wrong team.
  * How to run: Select this function in the Apps Script editor dropdown and click Run.
  * Side effects: Sets the specified team back to N in Nightly_Summary and recalculates all-four-complete.
@@ -489,14 +510,272 @@ function resetTeamSubmission_(nightDateKey, teamName) {
   Logger.log('Reset %s submission to N for %s. all four complete is now %s.', teamName, targetKey, allComplete);
 }
 
+/**
+ * MANUAL USE ONLY, do not install as a trigger.
+ * Audio export tool: creates shortcuts to all .wav and .WAV files
+ * across all collection nights in a single _audio_export/ folder in Drive.
+ *
+ * HOW TO USE (two options):
+ *
+ * Option A: Run from Apps Script editor:
+ *   Select exportAudioFiles from the function dropdown and click Run.
+ *   Authorize when prompted. A folder called _audio_export/ will appear
+ *   in the LIGHT_ALAN-W_2026/ root folder containing shortcuts to every
+ *   audio file. Open it in Drive, select all, right-click, Download.
+ *
+ * Option B: Deploy as web app (recommended for non-technical users):
+ *   Deploy > New deployment > Web app > Execute as Me > Anyone with link.
+ *   Share the URL with Dr. Cavitt. One button click exports everything.
+ *
+ * NOTES:
+ * - Creates shortcuts only  original files stay in place, nothing is moved
+ * - Re-running clears the previous export folder and rebuilds it fresh
+ * - Only collects .wav and .WAV files  no other file types
+ * - Skips the _audio_export folder itself to avoid circular references
+ * - Update CONFIG.ROOT_FOLDER_ID before running
+ */
+function exportAudioFiles() {
+  const rootId = CONFIG.ROOT_FOLDER_ID;
+  if (!rootId || rootId === 'YOUR_ROOT_FOLDER_ID_HERE') {
+    throw new Error('CONFIG.ROOT_FOLDER_ID is not set. Add the Drive folder ID of LIGHT_ALAN-W_2026/ to CONFIG before running.');
+  }
+
+  const root = DriveApp.getFolderById(rootId);
+  const exportFolderName = '_audio_export';
+
+  // Clear previous export folder if it exists
+  const existing = root.getFoldersByName(exportFolderName);
+  while (existing.hasNext()) {
+    existing.next().setTrashed(true);
+  }
+
+  const exportFolder = root.createFolder(exportFolderName);
+  const result = { found: 0, nights: new Set() };
+
+  walkForAudio_(root, exportFolder, exportFolderName, result, rootId);
+
+  Logger.log(
+    'Audio export complete. %s files found across %s collection nights. ' +
+    'Export folder: %s',
+    result.found,
+    result.nights.size,
+    exportFolder.getUrl()
+  );
+
+  return {
+    count: result.found,
+    nights: result.nights.size,
+    url: exportFolder.getUrl()
+  };
+}
+
+function walkForAudio_(folder, exportFolder, skipName, result, rootId) {
+  // Collect audio files in this folder
+  const files = folder.getFiles();
+  while (files.hasNext()) {
+    const file = files.next();
+    const name = file.getName();
+    const lower = name.toLowerCase();
+    if (lower.endsWith('.wav')) {
+      exportFolder.createShortcut(file.getId());
+      result.found += 1;
+      const nightFolderName = getNightFolderName_(folder, rootId);
+      if (nightFolderName) result.nights.add(nightFolderName);
+    }
+  }
+
+  // Recurse into subfolders, skip the export folder itself
+  const subfolders = folder.getFolders();
+  while (subfolders.hasNext()) {
+    const sub = subfolders.next();
+    if (sub.getName() !== skipName) {
+      walkForAudio_(sub, exportFolder, skipName, result, rootId);
+    }
+  }
+}
+
+function getNightFolderName_(folder, rootId) {
+  let current = folder;
+  while (current && current.getId() !== rootId) {
+    const parents = current.getParents();
+    if (!parents.hasNext()) return '';
+    const parent = parents.next();
+    if (parent.getId() === rootId) {
+      const nightName = current.getName();
+      return /^\d{8}_[IC]$/.test(nightName) ? nightName : '';
+    }
+    current = parent;
+  }
+  return '';
+}
+
+/**
+ * Web app entry point. Deploy as:
+ * Deploy > New deployment > Web app
+ * Execute as: Me
+ * Who has access: Anyone with the link (or Anyone in your organization)
+ *
+ * Share the URL with Dr. Cavitt and team leads.
+ * No login to Apps Script required; just open the link and click Export.
+ */
+function doGet() {
+  return HtmlService.createHtmlOutput(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>LIGHT Team  Audio Export</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+          font-family: system-ui, sans-serif;
+          background: #f5f5f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          padding: 24px;
+        }
+        .card {
+          background: #fff;
+          border-radius: 12px;
+          padding: 32px 28px;
+          max-width: 420px;
+          width: 100%;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #0d2137;
+          margin-bottom: 8px;
+        }
+        .subtitle {
+          font-size: 13px;
+          color: #666;
+          line-height: 1.5;
+          margin-bottom: 24px;
+        }
+        .btn {
+          width: 100%;
+          padding: 14px;
+          background: #0d2137;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-size: 15px;
+          font-weight: 500;
+          cursor: pointer;
+          font-family: inherit;
+        }
+        .btn:hover { background: #1a3a5c; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .status {
+          margin-top: 16px;
+          font-size: 13px;
+          color: #555;
+          line-height: 1.6;
+          min-height: 20px;
+        }
+        .status.success { color: #00796b; font-weight: 500; }
+        .status.error { color: #b71c1c; }
+        .link {
+          display: inline-block;
+          margin-top: 12px;
+          color: #0d2137;
+          font-weight: 500;
+          text-decoration: underline;
+          font-size: 13px;
+        }
+        .note {
+          margin-top: 20px;
+          padding: 10px 12px;
+          background: #fff8e1;
+          border-left: 3px solid #f57f17;
+          border-radius: 4px;
+          font-size: 12px;
+          color: #555;
+          line-height: 1.5;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="title">LIGHT Team Audio Export</div>
+        <div class="subtitle">
+          Collects all .wav and .WAV audio files from every collection night
+          into a single Drive folder. Open that folder and download to run
+          NFC detection processing.
+        </div>
+        <button class="btn" id="btn" onclick="runExport()">Export all audio files</button>
+        <div class="status" id="status"></div>
+        <div class="note">
+          Creates shortcuts only  original files stay in place.
+          Previous export is cleared each time. Allow 1 to 2 minutes
+          for large collections.
+        </div>
+      </div>
+      <script>
+        function runExport() {
+          const btn = document.getElementById('btn');
+          const status = document.getElementById('status');
+          btn.disabled = true;
+          btn.textContent = 'Exporting...';
+          status.className = 'status';
+          status.textContent = 'Finding audio files across all collection nights...';
+
+          google.script.run
+            .withSuccessHandler(function(result) {
+              btn.disabled = false;
+              btn.textContent = 'Export all audio files';
+              status.className = 'status success';
+              status.innerHTML =
+                result.count + ' files found across ' + result.nights +
+                ' collection nights.<br>' +
+                '<a class="link" href="' + result.url + '" target="_blank">' +
+                'Open export folder in Drive</a>';
+            })
+            .withFailureHandler(function(err) {
+              btn.disabled = false;
+              btn.textContent = 'Export all audio files';
+              status.className = 'status error';
+              status.textContent = 'Error: ' + err.message +
+                '. Check that CONFIG.ROOT_FOLDER_ID is set correctly.';
+            })
+            .exportAudioFiles();
+        }
+      </script>
+    </body>
+    </html>
+  `)
+  .setTitle('LIGHT Team Audio Export')
+  .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
 function addAcousticsSectionItems_(form) {
   form.addSectionHeaderItem().setTitle('SM4');
+  addChecklistItem_(
+    form,
+    'SM4 filename prefix verified as I_SM4_01 in device settings',
+    true,
+    'Pre-season configuration required. Open SongMeter app, confirm prefix is set ' +
+    'to I_SM4_01. Device generates I_SM4_01_YYYYMMDD_HHMMSS.wav automatically. ' +
+    'If prefix is wrong, files will not be self-describing  contact Data and QA Coordinator.'
+  );
   addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM4/ - not renamed', true);
   addChecklistItem_(form, 'File count confirmed (1-2 .wav files expected per night)', true);
   addChecklistItem_(form, 'Spot-check: 1 file opened, audio plays, timestamps correct', true);
   addChecklistItem_(form, 'SD card retained until next-day verification', true);
 
   form.addSectionHeaderItem().setTitle('SM5');
+  addChecklistItem_(
+    form,
+    'SM5 filename prefix verified as I_SM5_01 in device settings',
+    true,
+    'Pre-season configuration required. Open SongMeter app, confirm prefix is set ' +
+    'to I_SM5_01. Device generates I_SM5_01_YYYYMMDD_HHMMSS.wav automatically.'
+  );
   addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM5/ - not renamed', true);
   addChecklistItem_(form, 'File count confirmed for session length', true);
   addChecklistItem_(form, 'Spot-check: 1 file opened, audio plays, timestamps correct', true);
@@ -508,6 +787,14 @@ function addAcousticsSectionItems_(form) {
   addChecklistItem_(form, 'Device ID confirmed via metadata for both units (N and S)', true);
   addChecklistItem_(form, 'Spot-check: 1 file per unit opened and verified', true);
   addChecklistItem_(form, 'Media retained until next-day verification', true);
+  addChecklistItem_(
+    form,
+    '[PENDING ACOUSTICS TEAM CONFIRMATION] AudioMoth custom prefix configured if supported',
+    false,
+    'If AudioMoth firmware supports a custom prefix, set AM-N unit to I_AM_N ' +
+    'and AM-S unit to I_AM_S. If not supported, attribution remains by subfolder only. ' +
+    'Confirm with Davis Swanson before first collection night.'
+  );
 
   addTeamIssueFields_(form, 'Acoustics Team');
 }
@@ -545,7 +832,7 @@ function addAlanSensorsSectionItems_(form) {
     true,
     'Verify HOBO-01 lux readings are in the same order of magnitude as SQM sky brightness ' +
       'and show the same general trend across the night (e.g. both decrease after W shutoff). ' +
-      'Formal pass/fail tolerance is pending SOP 12 confirmation — use qualitative judgement until then.'
+      'Formal pass/fail tolerance is pending SOP 12 confirmation  use qualitative judgement until then.'
   );
   addChecklistItem_(form, 'HOBO 02 through HOBO 06 CSVs in respective subfolders', true);
   addChecklistItem_(form, 'All 6 loggers: gap-free lux and temperature records confirmed', true);
@@ -699,7 +986,7 @@ function addTeamIssueFields_(form, teamLabel) {
       'Corrupt file detected',
       'Checksum mismatch detected',
       'Manifest fields missing or incomplete',
-      'Institutional server unavailable — backup copy made'
+      'Institutional server unavailable  backup copy made'
     );
   }
   form
@@ -738,11 +1025,11 @@ function initializeTrackingSheets_(spreadsheet) {
     ]);
   }
 
-  // Roster sheet — to work we will need to populate with all the team members names.
+  // Roster sheet  to work we will need to populate with all the team members names.
   const roster = getOrCreateSheet_(spreadsheet, 'Roster');
   if (roster.getLastRow() === 0) {
     roster.appendRow(['name', 'team', 'email']);
-    roster.appendRow(['Add team members here — one per row', '', '']);
+    roster.appendRow(['Add team members here  one per row', '', '']);
     Logger.log('Roster sheet created. Populate with team member names before first collection night.');
   }
 }
@@ -763,7 +1050,7 @@ function logSubmissionRow_(spreadsheet, headers, rowValues) {
   const mismatch = existingHeaders.length !== headers.length || existingHeaders.some((h, i) => h !== headers[i]);
   if (mismatch) {
     Logger.log(
-      'logSubmissionRow_: WARNING — header mismatch detected. ' +
+      'logSubmissionRow_: WARNING  header mismatch detected. ' +
         'Appending row anyway. Manual review of Submission_Log headers may be needed.'
     );
   }
@@ -1094,11 +1381,11 @@ function getOrCreateSheet_(spreadsheet, sheetName) {
 function getRosterNames_(spreadsheet) {
   const sheet = spreadsheet.getSheetByName('Roster');
   if (!sheet || sheet.getLastRow() < 2) return [];
-  // getRange(row, col, numRows, numCols): column A from row 2 for (getLastRow() - 1) rows — excludes row 1 header only
+  // getRange(row, col, numRows, numCols): column A from row 2 for (getLastRow() - 1) rows  excludes row 1 header only
   const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
   return values
     .map((r) => (r[0] || '').toString().trim())
-    .filter((n) => n && n !== 'Add team members here — one per row');
+    .filter((n) => n && n !== 'Add team members here  one per row');
 }
 
 function ensureSummarySchema_(summarySheet) {
@@ -1121,14 +1408,14 @@ function ensureSummarySchema_(summarySheet) {
     return;
   }
 
-  // If headers exist but don't match, warn and continue — never clear existing data.
+  // If headers exist but don't match, warn and continue  never clear existing data.
   const current = summarySheet.getRange(1, 1, 1, summarySheet.getLastColumn()).getValues()[0];
   const mismatch =
     current.length < requiredHeaders.length ||
     requiredHeaders.some((h, i) => (current[i] || '') !== h);
   if (mismatch) {
     Logger.log(
-      'ensureSummarySchema_: WARNING — schema mismatch detected. ' +
+      'ensureSummarySchema_: WARNING  schema mismatch detected. ' +
         'Proceeding without schema correction. Manual review of Nightly_Summary headers required.'
     );
   }
