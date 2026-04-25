@@ -80,7 +80,8 @@ function createNightlyTemplate(rootFolderId, nightToken) {
     DRIVE_CONFIG.CALIBRATION_SUBFOLDERS.forEach(function(sub) {
       getOrCreateFolder_(calibration, sub);
     });
-    Logger.log('Permanent folders verified: _admin, _scripts, _calibration');
+    getOrCreateFolder_(root, '_audio_export');
+    Logger.log('Permanent folders verified: _admin, _scripts, _calibration, _audio_export');
 
     // Nightly folder tree.
     const night = getOrCreateFolder_(root, nightToken);
