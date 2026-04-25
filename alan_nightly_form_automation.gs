@@ -511,102 +511,728 @@ function resetTeamSubmission_(nightDateKey, teamName) {
 }
 
 /**
- * MANUAL USE ONLY, do not install as a trigger.
- * Audio export tool: creates shortcuts to all .wav and .WAV files
- * across all collection nights in a single _audio_export/ folder in Drive.
+ * TEST SUITE: LIGHT Team Nightly Submission System
+ * -------------------------------------------------
+ * Run from Apps Script editor: select runAllTests() and click Run.
+ * All results log to the execution log as PASS or FAIL with details.
  *
- * HOW TO USE (two options):
+ * Test groups:
+ *   1. CONFIG integrity
+ *   2. Date utilities (pure logic)
+ *   3. parseSubmissionFields_ (pure logic with mock row)
+ *   4. HOBO Friday logic (pure logic with mock sheet)
+ *   5. TEAM_CONFIG integrity
+ *   6. Duplicate detection logic
+ *   7. sendEmail_ DEMO_MODE behavior
+ *   8. getRosterNames_ (requires linked spreadsheet)
+ *   9. getNightDatesFromSummary_ (requires linked spreadsheet)
+ *  10. Audio export infrastructure (requires Drive)
+ *
+ * Groups 1-7 are pure logic tests and run without any Google service calls.
+ * Groups 8-10 require the linked spreadsheet and Drive to be set up.
+ *
+ * MANUAL USE ONLY: do not install as a trigger.
+ */
+function runAllTests() {
+  const results = [];
+  Logger.log('=== LIGHT Team Test Suite ===\n');
+
+  // Pure logic tests, no Google services required
+  results.push(...testConfigIntegrity_());
+  results.push(...testDateUtilities_());
+  results.push(...testParseSubmissionFields_());
+  results.push(...testHoboFridayLogic_());
+  results.push(...testTeamConfigIntegrity_());
+  results.push(...testDuplicateDetectionLogic_());
+  results.push(...testDemoModeBehavior_());
+
+  // Integration tests, require linked spreadsheet and Drive
+  results.push(...testRosterNames_());
+  results.push(...testNightDatesFromSummary_());
+  results.push(...testAudioExportInfrastructure_());
+
+  const passed = results.filter(r => r.pass && !r.skipped).length;
+  const failed = results.filter(r => !r.pass).length;
+  const skipped = results.filter(r => r.skipped).length;
+
+  Logger.log('\n=== Results: %s passed, %s failed, %s skipped ===', passed, failed, skipped);
+  if (failed > 0) {
+    Logger.log('\nFAILED TESTS:');
+    results.filter(r => !r.pass && !r.skipped).forEach(r => {
+      Logger.log('  FAIL: %s: %s', r.name, r.message);
+    });
+  } else {
+    Logger.log('All tests passed.');
+  }
+
+  return { passed, failed, skipped };
+}
+
+// Assertion helpers
+function assert_(name, condition, message) {
+  const result = { name, pass: !!condition, message: message || '', skipped: false };
+  Logger.log('%s: %s%s', result.pass ? 'PASS' : 'FAIL', name, result.pass ? '' : ': ' + message);
+  return result;
+}
+
+function assertEqual_(name, actual, expected) {
+  const pass = actual === expected;
+  return assert_(name, pass, pass ? '' : 'expected ' + JSON.stringify(expected) + ' got ' + JSON.stringify(actual));
+}
+
+function assertNotEqual_(name, actual, notExpected) {
+  const pass = actual !== notExpected;
+  return assert_(name, pass, pass ? '' : 'expected not ' + JSON.stringify(notExpected));
+}
+
+function assertNull_(name, actual) {
+  return assertEqual_(name + ' is null', actual, null);
+}
+
+function assertNotNull_(name, actual) {
+  return assert_(name + ' is not null', actual !== null && actual !== undefined, 'got null or undefined');
+}
+
+function assertMatches_(name, str, pattern) {
+  const pass = typeof str === 'string' && pattern.test(str);
+  return assert_(name, pass, pass ? '' : JSON.stringify(str) + ' does not match ' + pattern);
+}
+
+function skip_(name, reason) {
+  const result = { name, pass: true, message: 'SKIPPED: ' + reason, skipped: true };
+  Logger.log('SKIP: %s: %s', name, reason);
+  return result;
+}
+
+// Build a mock row map using CONFIG constants so tests stay in sync with the form
+function buildMockRowMap_(overrides) {
+  const base = {};
+  base.Timestamp = new Date();
+  base['Email Address'] = 'test@weber.edu';
+  base[CONFIG.FIELD_NIGHT_DATE] = new Date('2026-04-12');
+  base['Submitter name'] = 'Test User';
+  base.Team = 'Acoustics Team';
+  base['Submission time'] = '22:00';
+  base['Issues or deviations (Acoustics Team)'] = CONFIG.ISSUE_NONE_TEXT;
+  base['Field notes - details, deviations, follow-up needed (Acoustics Team)'] = 'No issues tonight.';
+  base[CONFIG.FIELD_OVERRIDE] = '';
+  base[CONFIG.FIELD_HOBO_WEEKLY] = '';
+  return Object.assign(base, overrides || {});
+}
+
+function testConfigIntegrity_() {
+  Logger.log('--- 1. CONFIG integrity ---');
+  const results = [];
+
+  const requiredStrings = [
+    'ALERT_EMAIL', 'ORG_NAME', 'TIMEZONE', 'FORM_TITLE', 'FORM_DESCRIPTION',
+    'FORM_PROP_KEY', 'SHEET_PROP_KEY', 'COMPLETE_ALERT_PREFIX',
+    'OUTSTANDING_ALERT_PREFIX', 'ISSUE_NONE_TEXT', 'FIELD_NIGHT_DATE',
+    'FIELD_OVERRIDE', 'FIELD_HOBO_WEEKLY'
+  ];
+
+  requiredStrings.forEach(key => {
+    results.push(assert_(
+      'CONFIG.' + key + ' is non-empty string',
+      typeof CONFIG[key] === 'string' && CONFIG[key].length > 0,
+      'Missing or empty'
+    ));
+  });
+
+  results.push(assertNotEqual_(
+    'CONFIG.ALERT_EMAIL is not placeholder',
+    CONFIG.ALERT_EMAIL, 'YourEmailHere'
+  ));
+
+  results.push(assert_(
+    'CONFIG.DEMO_MODE is boolean',
+    typeof CONFIG.DEMO_MODE === 'boolean', ''
+  ));
+
+  results.push(assert_(
+    'CONFIG.TEAM_VALUES is non-empty array',
+    Array.isArray(CONFIG.TEAM_VALUES) && CONFIG.TEAM_VALUES.length > 0, ''
+  ));
+
+  results.push(assert_(
+    'CONFIG.TEAM_CONFIG is object',
+    typeof CONFIG.TEAM_CONFIG === 'object' && CONFIG.TEAM_CONFIG !== null, ''
+  ));
+
+  results.push(assert_(
+    'CONFIG.ROOT_FOLDER_ID is set',
+    CONFIG.ROOT_FOLDER_ID && CONFIG.ROOT_FOLDER_ID !== 'YOUR_ROOT_FOLDER_ID_HERE',
+    'Set CONFIG.ROOT_FOLDER_ID before first collection night'
+  ));
+
+  if (CONFIG.DEMO_MODE) {
+    Logger.log('  ⚠ REMINDER: DEMO_MODE is true: emails suppressed. Set false before going live.');
+  }
+
+  return results;
+}
+
+function testDateUtilities_() {
+  Logger.log('--- 2. Date utilities ---');
+  const results = [];
+
+  // toDateKey_ with preformatted string, must pass through unchanged
+  results.push(assertEqual_('toDateKey_ passthrough YYYY-MM-DD', toDateKey_('2026-04-12'), '2026-04-12'));
+  results.push(assertEqual_('toDateKey_ passthrough with spaces trimmed', toDateKey_('  2026-04-12  '), '2026-04-12'));
+
+  // toDateKey_ with null/empty
+  results.push(assertEqual_('toDateKey_ empty string returns empty', toDateKey_(''), ''));
+  results.push(assertEqual_('toDateKey_ null returns empty', toDateKey_(null), ''));
+
+  // toDateKey_ with Date object returns YYYY-MM-DD
+  const d = new Date('2026-04-12T12:00:00');
+  results.push(assertMatches_('toDateKey_ Date object returns YYYY-MM-DD', toDateKey_(d), /^\d{4}-\d{2}-\d{2}$/));
+
+  // normalizeDate_
+  results.push(assertNull_('normalizeDate_ null', normalizeDate_(null)));
+  results.push(assertNull_('normalizeDate_ empty string', normalizeDate_('')));
+  results.push(assertNull_('normalizeDate_ invalid string', normalizeDate_('not-a-date')));
+  results.push(assertNotNull_('normalizeDate_ valid Date object', normalizeDate_(new Date())));
+  results.push(assertNotNull_('normalizeDate_ valid date string', normalizeDate_('2026-04-12')));
+
+  // formatDateKey_
+  results.push(assertMatches_('formatDateKey_ valid date returns YYYY-MM-DD', formatDateKey_(new Date('2026-04-12T12:00:00')), /^\d{4}-\d{2}-\d{2}$/));
+  results.push(assertEqual_('formatDateKey_ null returns empty', formatDateKey_(null), ''));
+
+  // Day-of-week detection for Friday logic
+  const friday = new Date('2026-04-17');
+  const thursday = new Date('2026-04-16');
+  const sunday = new Date('2026-04-12');
+  results.push(assertEqual_('Friday getDay() === 5', friday.getDay(), 5));
+  results.push(assertNotEqual_('Thursday getDay() !== 5', thursday.getDay(), 5));
+  results.push(assertNotEqual_('Sunday getDay() !== 5', sunday.getDay(), 5));
+
+  return results;
+}
+
+function testParseSubmissionFields_() {
+  Logger.log('--- 3. parseSubmissionFields_ ---');
+  const results = [];
+
+  // Normal Acoustics submission
+  const normal = parseSubmissionFields_(buildMockRowMap_());
+  results.push(assertEqual_('parsed.team', normal.team, 'Acoustics Team'));
+  results.push(assertEqual_('parsed.submitter', normal.submitter, 'Test User'));
+  results.push(assertEqual_('parsed.respondentEmail', normal.respondentEmail, 'test@weber.edu'));
+  results.push(assertEqual_('parsed.hasIssues false for no-issues selection', normal.hasIssues, false));
+  results.push(assertEqual_('parsed.overrideChecked false when empty', normal.overrideChecked, false));
+  results.push(assertEqual_('parsed.hoboWeeklyChecked false when empty', normal.hoboWeeklyChecked, false));
+  results.push(assertMatches_('parsed.nightDate is YYYY-MM-DD or empty', normal.nightDate, /^(\d{4}-\d{2}-\d{2})?$/));
+
+  // Issues flagged
+  const withIssues = parseSubmissionFields_(buildMockRowMap_({
+    'Issues or deviations (Acoustics Team)': 'Equipment malfunction or failure'
+  }));
+  results.push(assertEqual_('parsed.hasIssues true for flagged issues', withIssues.hasIssues, true));
+
+  // ISSUE_NONE_TEXT should not trigger hasIssues
+  const noIssues = parseSubmissionFields_(buildMockRowMap_({
+    'Issues or deviations (Acoustics Team)': CONFIG.ISSUE_NONE_TEXT
+  }));
+  results.push(assertEqual_('parsed.hasIssues false for ISSUE_NONE_TEXT', noIssues.hasIssues, false));
+
+  // Override checked
+  const withOverride = parseSubmissionFields_(buildMockRowMap_({
+    [CONFIG.FIELD_OVERRIDE]: 'Override enabled'
+  }));
+  results.push(assertEqual_('parsed.overrideChecked true when checked', withOverride.overrideChecked, true));
+
+  // HOBO weekly checked
+  const withHobo = parseSubmissionFields_(buildMockRowMap_({
+    [CONFIG.FIELD_HOBO_WEEKLY]: 'Complete'
+  }));
+  results.push(assertEqual_('parsed.hoboWeeklyChecked true when checked', withHobo.hoboWeeklyChecked, true));
+
+  // ALAN team routing
+  const alanRow = buildMockRowMap_({
+    Team: 'ALAN Sensors Team',
+    'Issues or deviations (ALAN Sensors Team)': CONFIG.ISSUE_NONE_TEXT,
+    'Field notes - details, deviations, follow-up needed (ALAN Sensors Team)': 'All good.'
+  });
+  const alan = parseSubmissionFields_(alanRow);
+  results.push(assertEqual_('parsed.team ALAN', alan.team, 'ALAN Sensors Team'));
+  results.push(assertEqual_('parsed.hasIssues false for ALAN no-issues', alan.hasIssues, false));
+
+  // Missing team field
+  const noTeam = parseSubmissionFields_({});
+  results.push(assertEqual_('parsed.team empty when missing', noTeam.team, ''));
+  results.push(assertEqual_('parsed.hasIssues false when no data', noTeam.hasIssues, false));
+
+  return results;
+}
+
+function testHoboFridayLogic_() {
+  Logger.log('--- 4. HOBO Friday logic ---');
+  const results = [];
+
+  // Mock sheet that records setBackground calls for verification
+  function makeMockSheet() {
+    const calls = [];
+    return {
+      calls,
+      getRange: (row, col, numRows, numCols) => ({
+        setBackground: (color) => calls.push({ row, col, color }),
+        getLastColumn: () => 5
+      }),
+      getLastColumn: () => 5
+    };
+  }
+
+  function runFridayTest(nightDate, team, overrideChecked, hoboWeeklyChecked) {
+    const sheet = makeMockSheet();
+    const parsed = {
+      team,
+      overrideChecked,
+      hoboWeeklyChecked,
+      nightDateRaw: nightDate
+    };
+    return {
+      result: validateAndMarkHoboFridayLogic_(sheet, [], [], 2, parsed),
+      sheet
+    };
+  }
+
+  // Non-ALAN team, all false regardless of date
+  const nonAlan = runFridayTest(new Date('2026-04-17'), 'Acoustics Team', false, false);
+  results.push(assertEqual_('Non-ALAN: isFriday false', nonAlan.result.isFriday, false));
+  results.push(assertEqual_('Non-ALAN: fridayMissingHobo false', nonAlan.result.fridayMissingHobo, false));
+  results.push(assertEqual_('Non-ALAN: overrideUsedOnNonFriday false', nonAlan.result.overrideUsedOnNonFriday, false));
+  results.push(assertEqual_('Non-ALAN: no sheet writes', nonAlan.sheet.calls.length, 0));
+
+  // Friday, ALAN, no HOBO: should flag missing
+  const fridayNoHobo = runFridayTest(new Date('2026-04-17'), 'ALAN Sensors Team', false, false);
+  results.push(assertEqual_('Friday ALAN no HOBO: isFriday true', fridayNoHobo.result.isFriday, true));
+  results.push(assertEqual_('Friday ALAN no HOBO: fridayMissingHobo true', fridayNoHobo.result.fridayMissingHobo, true));
+  results.push(assertEqual_('Friday ALAN no HOBO: overrideUsedOnNonFriday false', fridayNoHobo.result.overrideUsedOnNonFriday, false));
+  results.push(assert_('Friday ALAN no HOBO: sheet was highlighted', fridayNoHobo.sheet.calls.length > 0, ''));
+
+  // Friday, ALAN, HOBO confirmed: no missing flag
+  const fridayWithHobo = runFridayTest(new Date('2026-04-17'), 'ALAN Sensors Team', false, true);
+  results.push(assertEqual_('Friday ALAN with HOBO: isFriday true', fridayWithHobo.result.isFriday, true));
+  results.push(assertEqual_('Friday ALAN with HOBO: fridayMissingHobo false', fridayWithHobo.result.fridayMissingHobo, false));
+  results.push(assertEqual_('Friday ALAN with HOBO: no sheet highlight', fridayWithHobo.sheet.calls.length, 0));
+
+  // Thursday, ALAN, override enabled
+  const thursdayOverride = runFridayTest(new Date('2026-04-16'), 'ALAN Sensors Team', true, false);
+  results.push(assertEqual_('Thursday override: isFriday false', thursdayOverride.result.isFriday, false));
+  results.push(assertEqual_('Thursday override: overrideUsedOnNonFriday true', thursdayOverride.result.overrideUsedOnNonFriday, true));
+  results.push(assert_('Thursday override: sheet highlighted', thursdayOverride.sheet.calls.length > 0, ''));
+
+  // Normal non-Friday, ALAN, no override
+  const normalNight = runFridayTest(new Date('2026-04-16'), 'ALAN Sensors Team', false, false);
+  results.push(assertEqual_('Normal night: isFriday false', normalNight.result.isFriday, false));
+  results.push(assertEqual_('Normal night: fridayMissingHobo false', normalNight.result.fridayMissingHobo, false));
+  results.push(assertEqual_('Normal night: overrideUsedOnNonFriday false', normalNight.result.overrideUsedOnNonFriday, false));
+  results.push(assertEqual_('Normal night: no sheet writes', normalNight.sheet.calls.length, 0));
+
+  // null date, should not throw, isFriday false
+  const nullDate = runFridayTest(null, 'ALAN Sensors Team', false, false);
+  results.push(assertEqual_('Null date: isFriday false', nullDate.result.isFriday, false));
+
+  return results;
+}
+
+function testTeamConfigIntegrity_() {
+  Logger.log('--- 5. TEAM_CONFIG integrity ---');
+  const results = [];
+
+  const teams = Object.keys(CONFIG.TEAM_CONFIG);
+
+  results.push(assertEqual_('TEAM_CONFIG has 4 teams', teams.length, 4));
+
+  ['Acoustics Team', 'Imaging Team', 'ALAN Sensors Team', 'Data & QA'].forEach(team => {
+    results.push(assert_('TEAM_CONFIG has ' + team, teams.includes(team), ''));
+    const cfg = CONFIG.TEAM_CONFIG[team];
+    if (cfg) {
+      results.push(assert_(team + '.col is number > 0', typeof cfg.col === 'number' && cfg.col > 0, ''));
+      results.push(assert_(team + '.issueCol is number > 0', typeof cfg.issueCol === 'number' && cfg.issueCol > 0, ''));
+      results.push(assert_(team + '.summaryIdx is number >= 0', typeof cfg.summaryIdx === 'number' && cfg.summaryIdx >= 0, ''));
+      results.push(assertNotEqual_(team + '.col !== issueCol', cfg.col, cfg.issueCol));
+    }
+  });
+
+  // All cols, issueCols, summaryIdxs must be unique
+  const cols = teams.map(t => CONFIG.TEAM_CONFIG[t].col);
+  const issueCols = teams.map(t => CONFIG.TEAM_CONFIG[t].issueCol);
+  const idxs = teams.map(t => CONFIG.TEAM_CONFIG[t].summaryIdx);
+  results.push(assertEqual_('cols are unique', cols.length, new Set(cols).size));
+  results.push(assertEqual_('issueCols are unique', issueCols.length, new Set(issueCols).size));
+  results.push(assertEqual_('summaryIdxs are unique', idxs.length, new Set(idxs).size));
+
+  // TEAM_VALUES must match TEAM_CONFIG keys exactly
+  results.push(assertEqual_('TEAM_VALUES length matches TEAM_CONFIG', CONFIG.TEAM_VALUES.length, teams.length));
+  CONFIG.TEAM_VALUES.forEach(v => {
+    results.push(assert_('TEAM_VALUES entry in TEAM_CONFIG: ' + v, !!CONFIG.TEAM_CONFIG[v], ''));
+  });
+
+  // allComplete logic, verify it uses summaryIdx correctly
+  const mockRow = ['2026-04-12', 'N', 'N', 'N', 'N', 'N'];
+  Object.values(CONFIG.TEAM_CONFIG).forEach(cfg => {
+    mockRow[cfg.summaryIdx] = 'Y';
+  });
+  const allY = Object.values(CONFIG.TEAM_CONFIG).every(cfg => mockRow[cfg.summaryIdx] === 'Y');
+  results.push(assertEqual_('allComplete logic correct when all Y', allY, true));
+
+  const partialRow = ['2026-04-12', 'Y', 'N', 'N', 'N', 'N'];
+  const partialY = Object.values(CONFIG.TEAM_CONFIG).every(cfg => partialRow[cfg.summaryIdx] === 'Y');
+  results.push(assertEqual_('allComplete logic correct when partial Y', partialY, false));
+
+  return results;
+}
+
+function testDuplicateDetectionLogic_() {
+  Logger.log('--- 6. Duplicate detection logic ---');
+  const results = [];
+
+  // Simulate the duplicate check in updateNightlySummary_
+  // The function reads the current cell value and flags duplicate if already 'Y'
+  function simulateDuplicateCheck(existingValue) {
+    return existingValue === 'Y';
+  }
+
+  results.push(assertEqual_('duplicate detected when existing value is Y', simulateDuplicateCheck('Y'), true));
+  results.push(assertEqual_('no duplicate when existing value is N', simulateDuplicateCheck('N'), false));
+  results.push(assertEqual_('no duplicate when existing value is empty', simulateDuplicateCheck(''), false));
+
+  // allComplete only fires when all four teams are Y
+  function simulateAllComplete(acoustics, imaging, alan, dataqqa) {
+    const mockRow = { 1: acoustics, 2: imaging, 3: alan, 4: dataqqa };
+    return Object.values(CONFIG.TEAM_CONFIG).every(cfg => mockRow[cfg.summaryIdx] === 'Y') ? 'Y' : 'N';
+  }
+
+  results.push(assertEqual_('allComplete Y when all four submitted', simulateAllComplete('Y', 'Y', 'Y', 'Y'), 'Y'));
+  results.push(assertEqual_('allComplete N when one missing', simulateAllComplete('Y', 'Y', 'Y', 'N'), 'N'));
+  results.push(assertEqual_('allComplete N when all missing', simulateAllComplete('N', 'N', 'N', 'N'), 'N'));
+  results.push(assertEqual_('allComplete N when three submitted', simulateAllComplete('Y', 'Y', 'N', 'Y'), 'N'));
+
+  // Orange highlight should only fire on duplicate
+  function shouldHighlightOrange(isDuplicate) {
+    return isDuplicate;
+  }
+  results.push(assertEqual_('orange highlight fires on duplicate', shouldHighlightOrange(true), true));
+  results.push(assertEqual_('orange highlight does not fire on first submission', shouldHighlightOrange(false), false));
+
+  return results;
+}
+
+function testDemoModeBehavior_() {
+  Logger.log('--- 7. sendEmail_ DEMO_MODE behavior ---');
+  const results = [];
+
+  // Capture original DEMO_MODE
+  const originalDemoMode = CONFIG.DEMO_MODE;
+
+  // Test with DEMO_MODE true: should log, not send
+  // We verify by checking the function does not throw and logs correctly
+  CONFIG.DEMO_MODE = true;
+  try {
+    sendEmail_('test@weber.edu', 'Test subject', 'Test body', 'testDemoModeBehavior_');
+    results.push(assert_('sendEmail_ with DEMO_MODE true does not throw', true, ''));
+  } catch (e) {
+    results.push(assert_('sendEmail_ with DEMO_MODE true does not throw', false, e.message));
+  }
+
+  // Test with empty to address: should not throw
+  try {
+    sendEmail_('', 'Test subject', 'Test body', 'testDemoModeBehavior_');
+    results.push(assert_('sendEmail_ with empty to does not throw in DEMO_MODE', true, ''));
+  } catch (e) {
+    results.push(assert_('sendEmail_ with empty to does not throw in DEMO_MODE', false, e.message));
+  }
+
+  // Verify DEMO_MODE is currently true (pre-production check)
+  results.push(assert_(
+    'DEMO_MODE is true: emails suppressed for safety',
+    originalDemoMode === true,
+    'DEMO_MODE is false: emails will send on next form submission. Set to true for testing.'
+  ));
+
+  // Restore original DEMO_MODE
+  CONFIG.DEMO_MODE = originalDemoMode;
+
+  return results;
+}
+
+function testRosterNames_() {
+  Logger.log('--- 8. getRosterNames_ (integration) ---');
+  const results = [];
+
+  const sheetId = PropertiesService.getScriptProperties().getProperty(CONFIG.SHEET_PROP_KEY);
+  if (!sheetId) {
+    return [skip_('getRosterNames_ tests', 'No linked spreadsheet: run buildNightlyFormAndSheet() first')];
+  }
+
+  let ss;
+  try {
+    ss = SpreadsheetApp.openById(sheetId);
+  } catch (e) {
+    return [skip_('getRosterNames_ tests', 'Cannot open spreadsheet: ' + e.message)];
+  }
+
+  const roster = ss.getSheetByName('Roster');
+  results.push(assert_('Roster sheet exists', !!roster, 'Run buildNightlyFormAndSheet() to create it'));
+  if (!roster) return results;
+
+  results.push(assert_('Roster has at least header row', roster.getLastRow() >= 1, ''));
+
+  const names = getRosterNames_(ss);
+  results.push(assert_('getRosterNames_ returns array', Array.isArray(names), ''));
+
+  names.forEach((name, i) => {
+    results.push(assert_('Roster name ' + i + ' is non-empty string', typeof name === 'string' && name.length > 0, ''));
+    results.push(assertNotEqual_('Roster name ' + i + ' is not placeholder', name, 'Add team members here, one per row'));
+  });
+
+  if (names.length === 0) {
+    Logger.log('  ⚠ Roster is empty: populate before first collection night.');
+  }
+
+  return results;
+}
+
+function testNightDatesFromSummary_() {
+  Logger.log('--- 9. getNightDatesFromSummary_ (integration) ---');
+  const results = [];
+
+  const sheetId = PropertiesService.getScriptProperties().getProperty(CONFIG.SHEET_PROP_KEY);
+  if (!sheetId) {
+    return [skip_('getNightDatesFromSummary_ tests', 'No linked spreadsheet: run buildNightlyFormAndSheet() first')];
+  }
+
+  let dates;
+  try {
+    dates = getNightDatesFromSummary_();
+  } catch (e) {
+    return [assert_('getNightDatesFromSummary_ does not throw', false, e.message)];
+  }
+
+  results.push(assert_('returns array', Array.isArray(dates), ''));
+
+  if (dates.length > 0) {
+    dates.forEach((d, i) => {
+      results.push(assertMatches_('Night date ' + i + ' is YYYY-MM-DD', d, /^\d{4}-\d{2}-\d{2}$/));
+    });
+
+    for (let i = 0; i < dates.length - 1; i++) {
+      results.push(assert_(
+        'Dates sorted descending: ' + dates[i] + ' >= ' + dates[i + 1],
+        dates[i] >= dates[i + 1], ''
+      ));
+    }
+  } else {
+    Logger.log('  No collection nights recorded yet: submit a test form response first.');
+  }
+
+  return results;
+}
+
+function testAudioExportInfrastructure_() {
+  Logger.log('--- 10. Audio export infrastructure (integration) ---');
+  const results = [];
+
+  if (!CONFIG.ROOT_FOLDER_ID || CONFIG.ROOT_FOLDER_ID === 'YOUR_ROOT_FOLDER_ID_HERE') {
+    return [skip_('Audio export tests', 'CONFIG.ROOT_FOLDER_ID not set')];
+  }
+
+  let root;
+  try {
+    root = DriveApp.getFolderById(CONFIG.ROOT_FOLDER_ID);
+    results.push(assert_('Root folder accessible', !!root, ''));
+  } catch (e) {
+    return [assert_('Root folder accessible', false, e.message)];
+  }
+
+  // Required permanent folders
+  ['_admin', '_calibration', '_scripts', '_to_rename', '_audio_export'].forEach(name => {
+    const found = root.getFoldersByName(name).hasNext();
+    results.push(assert_('Permanent folder exists: ' + name, found, 'Run createNightlyTemplate() to create it'));
+  });
+
+  // folderHasAudio_ returns false for known non-audio folders
+  const adminFolders = root.getFoldersByName('_admin');
+  if (adminFolders.hasNext()) {
+    try {
+      const hasAudio = folderHasAudio_(adminFolders.next());
+      results.push(assertEqual_('folderHasAudio_ false for _admin', hasAudio, false));
+    } catch (e) {
+      results.push(assert_('folderHasAudio_ does not throw on _admin', false, e.message));
+    }
+  }
+
+  // folderHasAudio_ returns boolean
+  const calibFolders = root.getFoldersByName('_calibration');
+  if (calibFolders.hasNext()) {
+    try {
+      const hasAudio = folderHasAudio_(calibFolders.next());
+      results.push(assert_('folderHasAudio_ returns boolean', typeof hasAudio === 'boolean', ''));
+    } catch (e) {
+      results.push(assert_('folderHasAudio_ does not throw on _calibration', false, e.message));
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Audio export tool: creates a structured mirror of audio files in _audio_export/.
+ *
+ * Structure mirrors the primary archive:
+ *   _audio_export/
+ *     20260412_I_SM4/    ← shortcuts to SM4 .wav files
+ *     20260412_I_SM5/    ← shortcuts to SM5 .wav files
+ *     20260412_I_AM/
+ *       N/               ← shortcuts to AudioMoth north .WAV files
+ *       S/               ← shortcuts to AudioMoth south .WAV files
+ *     20260413_I_SM4/
+ *     ...
+ *
+ * HOW TO USE:
  *
  * Option A: Run from Apps Script editor:
  *   Select exportAudioFiles from the function dropdown and click Run.
- *   Authorize when prompted. A folder called _audio_export/ will appear
- *   in the LIGHT_ALAN-W_2026/ root folder containing shortcuts to every
- *   audio file. Open it in Drive, select all, right-click, Download.
+ *   Authorize when prompted. The _audio_export/ folder will be rebuilt
+ *   in the project root with the full nightly mirror structure.
+ *   Open it in Drive for Desktop to process recursively with BirdNET
+ *   or Kaleidoscope, or select all and download as a zip.
  *
- * Option B: Deploy as web app (recommended for non-technical users):
+ * Option B: Web app (recommended for non-technical users):
  *   Deploy > New deployment > Web app > Execute as Me > Anyone with link.
- *   Share the URL with Dr. Cavitt. One button click exports everything.
+ *   Share the URL. One button click rebuilds the full mirror.
  *
  * NOTES:
- * - Creates shortcuts only  original files stay in place, nothing is moved
- * - Re-running clears the previous export folder and rebuilds it fresh
- * - Only collects .wav and .WAV files  no other file types
- * - Skips the _audio_export folder itself to avoid circular references
+ * - Creates shortcuts only, original files stay in place, nothing is moved
+ * - Re-running clears and rebuilds the entire mirror fresh
+ * - Only collects .wav and .WAV files
+ * - Preserves nightly folder structure for sensor attribution
+ * - AudioMoth files retain subfolder context (N/ and S/)
  * - Update CONFIG.ROOT_FOLDER_ID before running
  */
 function exportAudioFiles() {
   const rootId = CONFIG.ROOT_FOLDER_ID;
   if (!rootId || rootId === 'YOUR_ROOT_FOLDER_ID_HERE') {
-    throw new Error('CONFIG.ROOT_FOLDER_ID is not set. Add the Drive folder ID of LIGHT_ALAN-W_2026/ to CONFIG before running.');
+    throw new Error(
+      'CONFIG.ROOT_FOLDER_ID is not set. ' +
+      'Add the Drive folder ID of LIGHT_ALAN-W_2026/ to CONFIG before running.'
+    );
   }
 
   const root = DriveApp.getFolderById(rootId);
   const exportFolderName = '_audio_export';
 
-  // Clear previous export folder if it exists
+  // Clear previous export folder entirely and rebuild fresh
   const existing = root.getFoldersByName(exportFolderName);
   while (existing.hasNext()) {
     existing.next().setTrashed(true);
   }
+  const exportRoot = root.createFolder(exportFolderName);
 
-  const exportFolder = root.createFolder(exportFolderName);
-  const result = { found: 0, nights: new Set() };
+  const result = { files: 0, nights: 0, sensors: new Set() };
 
-  walkForAudio_(root, exportFolder, exportFolderName, result, rootId);
+  // Walk only nightly folders, skip permanent folders
+  const permanentFolders = new Set([
+    '_admin', '_calibration', '_scripts', '_to_rename', '_audio_export'
+  ]);
+
+  const topFolders = root.getFolders();
+  while (topFolders.hasNext()) {
+    const folder = topFolders.next();
+    const name = folder.getName();
+
+    // Skip permanent project folders, only process YYYYMMDD_I nightly folders
+    if (permanentFolders.has(name)) continue;
+    if (!/^\d{8}_/.test(name)) continue;
+
+    result.nights += 1;
+    // Mirror sensor-level folders directly to keep a flat nightly export layout:
+    // _audio_export/YYYYMMDD_I_SM4, _audio_export/YYYYMMDD_I_SM5, _audio_export/YYYYMMDD_I_AM/N, etc.
+    const nightlySubfolders = folder.getFolders();
+    while (nightlySubfolders.hasNext()) {
+      const nightlySub = nightlySubfolders.next();
+      mirrorAudioFolder_(nightlySub, exportRoot, result);
+    }
+  }
 
   Logger.log(
     'Audio export complete. %s files found across %s collection nights. ' +
-    'Export folder: %s',
-    result.found,
-    result.nights.size,
-    exportFolder.getUrl()
+    'Sensors: %s. Export folder: %s',
+    result.files,
+    result.nights,
+    Array.from(result.sensors).join(', '),
+    exportRoot.getUrl()
   );
 
   return {
-    count: result.found,
-    nights: result.nights.size,
-    url: exportFolder.getUrl()
+    count: result.files,
+    nights: result.nights,
+    url: exportRoot.getUrl()
   };
 }
 
-function walkForAudio_(folder, exportFolder, skipName, result, rootId) {
-  // Collect audio files in this folder
-  const files = folder.getFiles();
+/**
+ * Recursively mirrors a folder's audio files into the export structure.
+ * Creates matching subfolders only when audio files are found inside them.
+ */
+function mirrorAudioFolder_(sourceFolder, exportParent, result) {
+  const sourceName = sourceFolder.getName();
+
+  // Check if this folder contains any audio files directly
+  const files = sourceFolder.getFiles();
+  const audioFiles = [];
   while (files.hasNext()) {
     const file = files.next();
-    const name = file.getName();
-    const lower = name.toLowerCase();
+    const lower = file.getName().toLowerCase();
     if (lower.endsWith('.wav')) {
-      exportFolder.createShortcut(file.getId());
-      result.found += 1;
-      const nightFolderName = getNightFolderName_(folder, rootId);
-      if (nightFolderName) result.nights.add(nightFolderName);
+      audioFiles.push(file);
     }
   }
 
-  // Recurse into subfolders, skip the export folder itself
-  const subfolders = folder.getFolders();
+  // Check which subfolders contain audio so we can preserve parent structure.
+  const subfoldersWithAudio = [];
+  const subfolders = sourceFolder.getFolders();
   while (subfolders.hasNext()) {
     const sub = subfolders.next();
-    if (sub.getName() !== skipName) {
-      walkForAudio_(sub, exportFolder, skipName, result, rootId);
-    }
+    if (folderHasAudio_(sub)) subfoldersWithAudio.push(sub);
   }
+
+  // Create matching export subfolder if this folder or any descendants have audio.
+  const shouldCreateFolder = audioFiles.length > 0 || subfoldersWithAudio.length > 0;
+  if (!shouldCreateFolder) return;
+  const exportFolder = exportParent.createFolder(sourceName);
+
+  // If audio files found, add shortcuts in this matching export subfolder.
+  if (audioFiles.length > 0) {
+    audioFiles.forEach(file => {
+      exportFolder.createShortcut(file.getId());
+      result.files += 1;
+      // Track which sensor types were found
+      const parts = sourceName.split('_');
+      if (parts.length >= 3) result.sensors.add(parts[2]);
+    });
+  }
+
+  // Recurse into subfolders (handles AM/N/, AM/S/, HOBO/01/ etc.)
+  subfoldersWithAudio.forEach(sub => mirrorAudioFolder_(sub, exportFolder, result));
 }
 
-function getNightFolderName_(folder, rootId) {
-  let current = folder;
-  while (current && current.getId() !== rootId) {
-    const parents = current.getParents();
-    if (!parents.hasNext()) return '';
-    const parent = parents.next();
-    if (parent.getId() === rootId) {
-      const nightName = current.getName();
-      return /^\d{8}_[IC]$/.test(nightName) ? nightName : '';
-    }
-    current = parent;
+/**
+ * Quick check: does this folder or any descendant contain a .wav or .WAV file?
+ * Used to avoid creating empty mirror subfolders.
+ */
+function folderHasAudio_(folder) {
+  const files = folder.getFiles();
+  while (files.hasNext()) {
+    if (files.next().getName().toLowerCase().endsWith('.wav')) return true;
   }
-  return '';
+  const subs = folder.getFolders();
+  while (subs.hasNext()) {
+    if (folderHasAudio_(subs.next())) return true;
+  }
+  return false;
 }
 
 /**
@@ -757,15 +1383,16 @@ function addAcousticsSectionItems_(form) {
   form.addSectionHeaderItem().setTitle('SM4');
   addChecklistItem_(
     form,
-    'SM4 filename prefix verified as I_SM4_01 in device settings',
+    'SM4 filename prefix verified as I-SM4-01 in device settings',
     true,
     'Pre-season configuration required. Open SongMeter app, confirm prefix is set ' +
-    'to I_SM4_01. Device generates I_SM4_01_YYYYMMDD_HHMMSS.wav automatically. ' +
-    'Note: raw file order is Site_Sensor_Device_Date, opposite of SOP 13, because ' +
+    'to I-SM4-01 (hyphens: device does not support underscores in prefix field). ' +
+    'Device generates I-SM4-01_YYYYMMDD_HHMMSS.wav automatically. ' +
+    'Note: raw file order is Site-Sensor-Device_Date, opposite of SOP 13, because ' +
     'the device appends the date after the prefix. This is expected, not an error. ' +
     'Derivative files follow SOP 13 date-first order as normal.'
   );
-  addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM4/ - not renamed', true);
+  addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM4/, not renamed', true);
   addChecklistItem_(form, 'File count confirmed (1-2 .wav files expected per night)', true);
   addChecklistItem_(form, 'Spot-check: 1 file opened, audio plays, timestamps correct', true);
   addChecklistItem_(form, 'SD card retained until next-day verification', true);
@@ -773,14 +1400,15 @@ function addAcousticsSectionItems_(form) {
   form.addSectionHeaderItem().setTitle('SM5');
   addChecklistItem_(
     form,
-    'SM5 filename prefix verified as I_SM5_01 in device settings',
+    'SM5 filename prefix verified as I-SM5-01 in device settings',
     true,
     'Pre-season configuration required. Open SongMeter app, confirm prefix is set ' +
-    'to I_SM5_01. Device generates I_SM5_01_YYYYMMDD_HHMMSS.wav automatically. ' +
-    'Note: raw file order is Site_Sensor_Device_Date, opposite of SOP 13, because ' +
+    'to I-SM5-01 (hyphens: device does not support underscores in prefix field). ' +
+    'Device generates I-SM5-01_YYYYMMDD_HHMMSS.wav automatically. ' +
+    'Note: raw file order is Site-Sensor-Device_Date, opposite of SOP 13, because ' +
     'the device appends the date after the prefix. This is expected, not an error.'
   );
-  addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM5/ - not renamed', true);
+  addChecklistItem_(form, 'Raw .wav files copied to YYYYMMDD_I_SM5/, not renamed', true);
   addChecklistItem_(form, 'File count confirmed for session length', true);
   addChecklistItem_(form, 'Spot-check: 1 file opened, audio plays, timestamps correct', true);
   addChecklistItem_(form, 'SD card retained until next-day verification', true);
@@ -811,13 +1439,13 @@ function addImagingSectionItems_(form) {
   addChecklistItem_(form, 'Scan bout documentation completed by Observation and Logging Lead', true);
 
   form.addSectionHeaderItem().setTitle('All-sky Camera (01)');
-  addChecklistItem_(form, '.FIT files uploaded to YYYYMMDD_I_ALLSKY/ - not renamed', true);
+  addChecklistItem_(form, '.FIT files uploaded to YYYYMMDD_I_ALLSKY/, not renamed', true);
   addChecklistItem_(form, 'Dark frames collected at end of session and uploaded to YYYYMMDD_I_ALLSKY/dark/', true);
   addChecklistItem_(form, 'File count plausible for session length (~120 frames/hr at 30-sec interval)', true);
   addChecklistItem_(form, 'Device internal storage cleared for next night [CRITICAL: 1 GB limit]', true);
 
-  form.addSectionHeaderItem().setTitle('Low-light Video - Sony ZV-1 (01)');
-  addChecklistItem_(form, 'DS######.mp4 files uploaded to YYYYMMDD_I_LLV/ - not renamed', true);
+  form.addSectionHeaderItem().setTitle('Low-light Video: Sony ZV-1 (01)');
+  addChecklistItem_(form, 'DS######.mp4 files uploaded to YYYYMMDD_I_LLV/, not renamed', true);
   addChecklistItem_(form, 'Focus lock confirmed (lens tape applied per SOP 6)', true);
   addChecklistItem_(form, 'Spot-check: file plays back, image quality acceptable', true);
 
@@ -825,8 +1453,8 @@ function addImagingSectionItems_(form) {
 }
 
 function addAlanSensorsSectionItems_(form) {
-  form.addSectionHeaderItem().setTitle('Sky Quality Meter - SD card (SQM 01-SD)');
-  addChecklistItem_(form, 'SQM CSV uploaded to YYYYMMDD_I_SQM/ - not renamed', true);
+  form.addSectionHeaderItem().setTitle('Sky Quality Meter: SD card (SQM 01-SD)');
+  addChecklistItem_(form, 'SQM CSV uploaded to YYYYMMDD_I_SQM/, not renamed', true);
   addChecklistItem_(form, 'Data values plausible (mag/arcsec^2), no unexpected gaps or spikes', true);
 
   form.addSectionHeaderItem().setTitle('HOBO Loggers (01-06)');

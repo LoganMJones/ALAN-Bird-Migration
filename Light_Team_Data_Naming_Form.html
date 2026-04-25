@@ -1,5 +1,5 @@
 <!--
-  LIGHT Team — Nightly Data Ingest Checklist
+  LIGHT Team: Nightly Data Ingest Checklist
   ALAN "W" Study, Weber State University, 2026
   Architected by Logan Jones with Claude (Anthropic) and Cursor AI.
   All checklist items, sensor codes, folder paths, and protocol references
@@ -205,7 +205,7 @@ input[type=date]{color-scheme:dark;}
 
 <div id="s-home" class="screen active">
   <div class="topbar">
-    <div class="topbar-title">LIGHT — Data Ingest</div>
+    <div class="topbar-title">LIGHT: Data Ingest</div>
     <div class="topbar-night" id="home-date-display"></div>
   </div>
   <div class="content">
@@ -239,7 +239,7 @@ input[type=date]{color-scheme:dark;}
 
     <div class="nb-builder" aria-label="Derivative filename UTC tokens (SOP 13)">
       <div class="nb-builder-title">Derivative name builder</div>
-      <p class="nb-builder-note">Uses the <strong>Night</strong> date above (MDT). Derivative filenames use UTC date + <span style="font-family:var(--mono)">StartTimeUTC</span>. No session is pre-selected — the UTC date does not roll forward until you choose one.</p>
+      <p class="nb-builder-note">Uses the <strong>Night</strong> date above (MDT). Derivative filenames use UTC date + <span style="font-family:var(--mono)">StartTimeUTC</span>. No session is pre-selected; the UTC date does not roll forward until you choose one.</p>
       <fieldset class="nb-fieldset nb-sess">
         <legend>Session time (Utah / MDT)</legend>
         <label><input type="radio" name="nb-sess" value="" checked /> Select a session (required)</label>
@@ -302,12 +302,12 @@ const TEAMS = {
     groups: [
       { name:'SongMeter 4 (SM4-01)', items:[
         {
-          t: 'SM4 filename prefix verified as I_SM4_01 in device settings',
-          h: 'Pre-season check. Generates I_SM4_01_YYYYMMDD_HHMMSS.wav. Raw order is Site_Sensor_Device_Date — opposite of SOP 13 due to device constraint. Expected, not an error.',
+          t: 'SM4 filename prefix verified as I-SM4-01 in device settings',
+          h: 'Pre-season check. Hyphens required: device does not support underscores in prefix. Generates I-SM4-01_YYYYMMDD_HHMMSS.wav. Raw order is Site-Sensor-Device_Date, opposite of SOP 13 due to device constraint. Expected, not an error.',
           tag: 'crit'
         },
         {t:'SM4 SD card retrieved from field station', h:''},
-        {t:'Raw .wav files copied to 20260412_I_SM4/', h:'Do NOT rename — keep PREFIX_YYYYMMDD_HHMMSS.wav'},
+        {t:'Raw .wav files copied to 20260412_I_SM4/', h:'Do NOT rename: keep PREFIX_YYYYMMDD_HHMMSS.wav'},
         {t:'File count: 1–2 .wav files expected per night', h:'Flag shortfall to Aavash immediately'},
         {t:'Spot-check: opened 1 file, audio plays and is clean', h:''},
         {t:'SM4 SD card retained until next-day verification', h:'', tag:'crit'},
@@ -316,19 +316,19 @@ const TEAMS = {
         name: 'SongMeter 5 (SM5-01)',
         items: [
           {
-            t: 'SM5 filename prefix verified as I_SM5_01 in device settings',
-            h: 'Pre-season check. Generates I_SM5_01_YYYYMMDD_HHMMSS.wav. Raw order is Site_Sensor_Device_Date, opposite of SOP 13 due to device constraint. Expected, not an error.',
+            t: 'SM5 filename prefix verified as I-SM5-01 in device settings',
+            h: 'Pre-season check. Hyphens required: device does not support underscores in prefix. Generates I-SM5-01_YYYYMMDD_HHMMSS.wav. Raw order is Site-Sensor-Device_Date, opposite of SOP 13 due to device constraint. Expected, not an error.',
             tag: 'crit'
           },
           {t: 'SM5 SD card retrieved from field station', h: ''},
-          {t: 'Raw .wav files copied to YYYYMMDD_I_SM5/', h: 'Do NOT rename — keep device-generated filename'},
+          {t: 'Raw .wav files copied to YYYYMMDD_I_SM5/', h: 'Do NOT rename: keep device-generated filename'},
           {t: 'File count confirmed for session length', h: 'Flag any shortfall to Aavash immediately'},
           {t: 'Spot-check: opened 1 file, audio plays and is clean', h: ''},
           {t: 'SM5 SD card retained until next-day verification', h: '', tag: 'crit'},
         ]
       },
       { name:'AudioMoth (AM-N & AM-S)', items:[
-        {t:'AM-N raw .WAV files copied to …/AM/N/ subfolder', h:'YYYYMMDD_hhmmss.WAV — never rename'},
+        {t:'AM-N raw .WAV files copied to …/AM/N/ subfolder', h:'YYYYMMDD_hhmmss.WAV, never rename'},
         {t:'AM-S raw .WAV files copied to …/AM/S/ subfolder', h:'Device ID confirmed via pole tag (N = north, S = south)'},
         {t:'Spot-check: opened 1 file per unit', h:''},
         {t:'AudioMoth media retained until next-day verification', h:'', tag:'crit'},
@@ -355,14 +355,14 @@ const TEAMS = {
         {t:'Thermal media cleared / retained per protocol', h:''},
       ]},
       { name:'All-sky Camera (CAM-01)', items:[
-        {t:'IMG#.FIT files uploaded to ALLSKY/ subfolder', h:'~30-sec frames — do NOT rename .FIT files'},
+        {t:'IMG#.FIT files uploaded to ALLSKY/ subfolder', h:'~30-sec frames, do NOT rename .FIT files'},
         {t:'Dark frames collected at end of session and uploaded to ALLSKY/dark/ subfolder', h:''},
         {t:'File count plausible for session length', h:'~120 frames/hr expected at 30-sec interval'},
-        {t:'Device internal storage cleared for next night', h:'1 GB limit — offload is critical every night', tag:'crit'},
+        {t:'Device internal storage cleared for next night', h:'1 GB limit; offload is critical every night', tag:'crit'},
       ]},
-      { name:'Low-light Video — Sony ZV-1 (LLV-01)', items:[
+      { name:'Low-light Video: Sony ZV-1 (LLV-01)', items:[
         {t:'DS######.mp4 files uploaded to LLV/ subfolder', h:'Do NOT rename raw files'},
-        {t:'Focus lock confirmed — lens tape applied per SOP 6', h:''},
+        {t:'Focus lock confirmed, lens tape applied per SOP 6', h:''},
         {t:'Spot-check: file plays back, image quality acceptable', h:''},
         {t:'Storage estimate logged (~60–120 GB/3hrs at 4K)', h:'Flag if card is nearing capacity'},
       ]},
@@ -372,22 +372,22 @@ const TEAMS = {
     label:'ALAN Sensors', icon:'💡', color:'alan',
     lead:'Neisha Erickson',
     groups: [
-      { name:'Sky Quality Meter — SD card (SQM-01)', items:[
+      { name:'Sky Quality Meter: SD card (SQM-01)', items:[
         {t:'SQM SD card retrieved and CSV uploaded to SQM/ subfolder', h:'60-second logging interval'},
         {t:'Data values plausible (mag/arcsec²)', h:''},
         {t:'No unexpected gaps or spikes in record', h:''},
       ]},
       { name:'HOBO Loggers (HOBO-01 through HOBO-06)', items:[
-        {t:'HOBO-01 CSV exported to HOBO/HOBO-01/ (co-located with SQM)', h:'Cross-check lux vs SQM — same order of magnitude and trend expected'},
+        {t:'HOBO-01 CSV exported to HOBO/HOBO-01/ (co-located with SQM)', h:'Cross-check lux vs SQM, same order of magnitude and trend expected'},
         {t:'HOBO-02 through HOBO-06 CSVs in their respective subfolders', h:'Export via HOBOware. Logging interval: confirm with Neisha (work plan: 60s · device inventory: 5min)', tag:'warn'},
         {t:'All 6 loggers: gap-free lux + temperature confirmed', h:''},
-        {t:'Friday weekly export uploaded to _calibration/HOBO/', h:'Weekly only — skip on non-Friday nights', tag:'friday'},
+        {t:'Friday weekly export uploaded to _calibration/HOBO/', h:'Weekly only, skip on non-Friday nights', tag:'friday'},
       ]},
       { name:'Spectrometer (SPEC-01)', items:[
         {t:'Near-onset session file uploaded to SPEC/ subfolder', h:'Dark frame collected before session'},
         {t:'Near-midpoint session file uploaded', h:'Dark frame collected before session'},
         {t:'Near-termination session file uploaded', h:'Dark frame collected before session'},
-        {t:'Spectral distribution image exported as PNG for each session', h:'Device defaults to JPG — must re-export as PNG. Goes in SPEC/raw/ alongside the CSV.', tag:'warn'},
+        {t:'Spectral distribution image exported as PNG for each session', h:'Device defaults to JPG; re-export as PNG. Goes in SPEC/raw/ alongside the CSV.', tag:'warn'},
       ]},
       { name:'Handheld Lux Meter (LUX-01)', items:[
         {t:'8pm: all 6 readings recorded (horiz + N/W/S/E + W-facing)', h:'W bearing in degrees from I-center required'},
@@ -397,7 +397,7 @@ const TEAMS = {
         {t:'Completed Lux Field Card uploaded to LUX/ subfolder', h:''},
       ]},
       { name:'Weather Station (WX-01)', items:[
-        {t:'Weather data export uploaded to WEATHER/ subfolder', h:'Davis Vantage Pro2 — format TBD', tag:'warn'},
+        {t:'Weather data export uploaded to WEATHER/ subfolder', h:'Davis Vantage Pro2, format TBD', tag:'warn'},
       ]},
     ]
   },
@@ -418,21 +418,21 @@ const TEAMS = {
         {t:'File counts verified against Expected Files Table (all teams)', h:'Flag any missing datasets immediately', tag:'crit'},
         {
           t:'File count on primary copy verified against source media',
-          h:'SOP 12 step 8 — count must match exactly. Record any discrepancy in Field Log.',
+          h:'SOP 12 step 8: count must match exactly. Record any discrepancy in Field Log.',
           tag:'crit'
         },
       ]},
       { name:'Spot-check QA', items:[
         {t:'SM4: 1 .wav file opened and verified', h:''},
         {t:'AudioMoth: 1 file per unit opened and verified', h:''},
-        {t:'HOBO: all 6 CSVs opened — timestamps and values plausible', h:''},
+        {t:'HOBO: all 6 CSVs opened, timestamps and values plausible', h:''},
         {t:'SQM: CSV contains full overnight record, no gaps', h:''},
         {t:'LUX: 3 sessions present, 6 readings each', h:''},
         {t:'ALLSKY: frame count plausible, dark frames present in ALLSKY/dark/', h:''},
         {t:'THERMAL + LLV: files play back, no corruption', h:''},
         {
           t:'No corrupt, empty, or misattributed files found',
-          h:'SOP 12 step 7 — if any found, stop and notify Data and QA Coordinator immediately. Do not alter files.'
+          h:'SOP 12 step 7: if any found, stop and notify Data and QA Coordinator immediately. Do not alter files.'
         },
       ]},
       { name:'Admin upload', items:[
@@ -446,7 +446,7 @@ const TEAMS = {
         {t:'Data submission checklist sent to Dr. Cavitt', h:''},
         {
           t:'Nightly Field Lead sign-off confirmed',
-          h:'SOP 12 step 10 — required before shift is considered complete.',
+          h:'SOP 12 step 10: required before shift is considered complete.',
           tag:'crit'
         },
       ]},
@@ -674,23 +674,23 @@ function submitNight(){
 const MANUAL = {
   'acoustics-m': [
     {code:'SM4', name:'SongMeter 4', items:[
-      {t: 'SM4 prefix verified as I_SM4_01', h: 'Pre-season — set once in SongMeter app'},
+      {t: 'SM4 prefix verified as I-SM4-01', h: 'Pre-season: hyphens required, set once in SongMeter app'},
       {t:'SM4 SD card retrieved',h:''},
       {t:'Raw .wav files copied to SM4/ subfolder',h:'Do NOT rename'},
       {t:'File count: 1–2 .wav per night',h:''},
-      {t:'Spot-check 1 file — audio clean',h:''},
+      {t:'Spot-check 1 file, audio clean',h:''},
       {t:'SD card retained until verification',h:''},
     ]},
     {code: 'SM5', name: 'SongMeter 5', items: [
-      {t: 'SM5 prefix verified as I_SM5_01', h: 'Pre-season — set once in SongMeter app'},
+      {t: 'SM5 prefix verified as I-SM5-01', h: 'Pre-season: hyphens required, set once in SongMeter app'},
       {t: 'SM5 SD card retrieved', h: ''},
       {t: 'Raw .wav files copied to SM5/ subfolder', h: 'Do NOT rename'},
       {t: 'File count confirmed for session length', h: ''},
-      {t: 'Spot-check 1 file — audio clean', h: ''},
+      {t: 'Spot-check 1 file, audio clean', h: ''},
       {t: 'SD card retained until verification', h: ''},
     ]},
     {code:'AM', name:'AudioMoth ×2', items:[
-      {t:'AM-N .WAV files → AM/N/ subfolder',h:'Never rename — pole tag N = north'},
+      {t:'AM-N .WAV files → AM/N/ subfolder',h:'Never rename, pole tag N = north'},
       {t:'AM-S .WAV files → AM/S/ subfolder',h:'Pole tag S = south'},
       {t:'Spot-check 1 file per unit',h:''},
       {t:'Media retained until verification',h:''},
@@ -705,7 +705,7 @@ const MANUAL = {
     {code:'ALLSKY', name:'All-sky Camera', items:[
       {t:'IMG#.FIT files uploaded to ALLSKY/',h:'Do NOT rename'},
       {t:'Dark frames collected + uploaded to ALLSKY/dark/',h:''},
-      {t:'Device storage cleared',h:'1 GB limit — critical'},
+      {t:'Device storage cleared',h:'1 GB limit, critical'},
     ]},
     {code:'LLV', name:'Sony ZV-1 (01)', items:[
       {t:'DS######.mp4 files uploaded to LLV/',h:'Do NOT rename'},
@@ -719,7 +719,7 @@ const MANUAL = {
       {t:'Values plausible, no gaps',h:''},
     ]},
     {code:'HOBO', name:'HOBO Loggers ×6', items:[
-      {t:'HOBO-01 CSV → HOBO/HOBO-01/',h:'Co-located with SQM — cross-check lux vs SQM'},
+      {t:'HOBO-01 CSV → HOBO/HOBO-01/',h:'Co-located with SQM, cross-check lux vs SQM'},
       {t:'HOBO-02 through -06 in own subfolders',h:'Interval: confirm with Neisha (60s vs 5min unresolved)'},
       {t:'All 6: gap-free lux + temp',h:''},
       {t:'Friday export → _calibration/HOBO/',h:'Fridays only'},
@@ -728,7 +728,7 @@ const MANUAL = {
       {t:'Near-onset session uploaded',h:'Dark frame before each'},
       {t:'Near-midpoint session uploaded',h:''},
       {t:'Near-termination session uploaded',h:''},
-      {t:'Spectral distribution PNG exported for each session',h:'Re-export as PNG — device default is JPG'},
+      {t:'Spectral distribution PNG exported for each session',h:'Re-export as PNG; device default is JPG'},
     ]},
     {code:'LUX', name:'Handheld Lux', items:[
       {t:'8pm: 6 readings (horiz+4 cardinal+W)',h:'Record W bearing°'},
@@ -746,11 +746,11 @@ const MANUAL = {
       {t:'File counts vs Expected Files Table',h:'Flag missing data'},
       {t:'Spot-check 1 file per sensor stream',h:''},
       {t:'File count verified against source media', h:'SOP 12 step 8'},
-      {t:'No corrupt files found in spot-check', h:'SOP 12 step 7 — notify Data and QA if found'},
+      {t:'No corrupt files found in spot-check', h:'SOP 12 step 7: notify Data and QA if found'},
       {t:'Field Log, Time Sync, photos → ADMIN/',h:''},
       {t:'Encrypted drive backup (SOP 12)',h:'Critical'},
       {t:'Media retained until next-day verify',h:''},
-      {t:'Nightly Field Lead sign-off confirmed', h:'SOP 12 step 10 — required before departure'},
+      {t:'Nightly Field Lead sign-off confirmed', h:'SOP 12 step 10: required before departure'},
     ]},
   ],
 };

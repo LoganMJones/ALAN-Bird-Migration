@@ -1,5 +1,5 @@
 /**
- * LIGHT Team — Google Drive nightly folder template
+ * LIGHT Team: Google Drive nightly folder template
  * --------------------------------------------------
  * AUTHORSHIP
  * System architecture and all structural decisions were produced by Logan Jones
@@ -54,14 +54,14 @@ function createNightlyTemplate(rootFolderId, nightToken) {
 
     const root = DriveApp.getFolderById(rootFolderId);
 
-    // Permanent project folders — created once, reused every night.
+    // Permanent project folders, created once and reused every night.
     DRIVE_CONFIG.PERMANENT_FOLDERS.forEach(function(name) {
       getOrCreateFolder_(root, name);
     });
     getOrCreateFolder_(root, '_to_rename');
     const toRename = getOrCreateFolder_(root, '_to_rename');
     const readmeContent =
-      'SOP 13 — Correction folder\n\n' +
+      'SOP 13: Correction folder\n\n' +
       'Place files here when:\n' +
       '- A file was named incorrectly at ingest\n' +
       '- A device-generated name is garbled, duplicated, or problematic\n\n' +
