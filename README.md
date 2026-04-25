@@ -570,16 +570,17 @@ populated before anyone submits the form.
 1. In the function dropdown, select `createNightlyTemplate`
 2. This requires parameters, open the Apps Script editor console and run:
    ```javascript
-   createNightlyTemplate('YOUR_ROOT_FOLDER_ID', 'TEMPLATE_NIGHTLY_I')
+   createNightlyTemplate('YOUR_ROOT_FOLDER_ID', '20260412_I')
    ```
-   Replace YOUR_ROOT_FOLDER_ID with the actual ID from Step 2.
+   Replace YOUR_ROOT_FOLDER_ID with the actual ID from Step 2 and use a real
+   `YYYYMMDD_I` or `YYYYMMDD_C` night token for your run date.
 3. Verify in Drive that the following folders exist under the project root:
    - `_admin/`
    - `_calibration/` with `HOBO/`, `SQM/`, `baseline_readings/` inside
    - `_scripts/`
    - `_to_rename/` with a README.txt inside
    - `_audio_export/`
-   - `TEMPLATE_NIGHTLY_I/` with all sensor subfolders inside
+   - `20260412_I/` (or your run-date token) with all sensor subfolders inside
 
 ### Step 6, Deploy the audio export web app
 
