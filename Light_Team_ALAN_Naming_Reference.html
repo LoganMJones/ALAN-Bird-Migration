@@ -346,8 +346,7 @@ table.ref tr:last-child td { border-bottom: none; }
     orphans: 2;
     widows: 2;
     background:
-      linear-gradient(150deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 35%, rgba(255,255,255,0.00) 100%),
-      linear-gradient(35deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.00) 60%),
+      linear-gradient(150deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.00) 40%),
       #4b2865;
     color: var(--text);
   }
@@ -401,10 +400,16 @@ table.ref tr:last-child td { border-bottom: none; }
   .token-row,
   table.ref,
   .folder-box,
-  .alert-box { border-color: #a378b2; }
+  .alert-box {
+    border-color: #a378b2;
+    background: #c9b1d2;
+  }
   .token-cell,
   .token-pair .token-cell.header { border-color: #8e68a0; }
-  .token-cell.body { background: #5d3b73; }
+  .token-cell.body {
+    background: #d7c3e2;
+    color: #2f1742;
+  }
   .tok-date { background: #4b2865; }
   .tok-site { background: #624379; }
   .tok-sensor { background: #76558b; }
@@ -415,8 +420,12 @@ table.ref tr:last-child td { border-bottom: none; }
     background: #4b2865;
     color: #f1eff2;
   }
-  table.ref tr:nth-child(even) td { background: #5d3b73; }
-  table.ref td { border-bottom-color: #8e68a0; }
+  table.ref td {
+    background: #d7c3e2;
+    color: #2f1742;
+    border-bottom-color: #8e68a0;
+  }
+  table.ref tr:nth-child(even) td { background: #c9b1d2; }
   .code-pill {
     background: #76558b;
     color: #f1eff2;
@@ -424,11 +433,16 @@ table.ref tr:last-child td { border-bottom: none; }
   }
   .alert-red,
   .alert-amber,
-  .folder-box { background: #5d3b73; }
+  .folder-box {
+    background: #c9b1d2;
+    color: #2f1742;
+  }
   .alert-red,
   .alert-amber { border-left-color: #a378b2; }
+  .alert-box .alert-title,
+  .alert-body,
   .mono-inline,
-  .mono-cell { color: #f3e9ff; }
+  .mono-cell { color: #2f1742; }
   .footer { border-top-color: #a378b2; }
   .token-cell.header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   table.ref th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
